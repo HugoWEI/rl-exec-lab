@@ -28,16 +28,19 @@ def load_binance_klines(paths) -> pd.DataFrame:
 
 
 def synthetic_bars(n_days: int = 120, seed: int = 0, s0: float = 30_000.0, daily_vol: float = 0.03,
-                   start: str = "2024-01-01") -> pd.DataFrame:
-    """Driftless 1-minute bars with a U-shaped intraday vol/volume profile. For tests and demos only:
-    there is nothing to predict, so no policy should beat TWAP on timing here."""
+                   start: str = "2024-01-01", midday_dip_bps: float = 0.0) -> pd.DataFrame:
+    """1-minute bars with a U-shaped intraday vol/volume profile. For tests and demos only.
+    With midday_dip_bps = 0 prices are driftless: nothing to predict, no policy should beat TWAP on
+    timing. With midday_dip_bps > 0 the price dips by that much around midday on average, a
+    deliberately learnable pattern used to check that an agent can learn at all."""
     rng = np.random.default_rng(seed)
     n = 1440 * n_days
     tod = np.arange(n) % 1440
     shape = 1.0 + 0.8 * np.cos(2 * np.pi * tod / 1440) ** 2
     shape /= np.sqrt(np.mean(shape**2))
     sig = daily_vol / np.sqrt(1440) * shape
-    close = s0 * np.exp(np.cumsum(rng.standard_normal(n) * sig))
+    drift = -(midday_dip_bps / 1e4) * np.pi / 1440 * np.sin(2 * np.pi * tod / 1440)
+    close = s0 * np.exp(np.cumsum(rng.standard_normal(n) * sig + drift))
     open_ = np.concatenate([[s0], close[:-1]])
     high = np.maximum(open_, close) * (1 + np.abs(rng.standard_normal(n)) * sig / 2)
     low = np.minimum(open_, close) * (1 - np.abs(rng.standard_normal(n)) * sig / 2)

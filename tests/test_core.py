@@ -104,3 +104,29 @@ def test_split_and_summary():
 def test_describe_flags_frictionless():
     assert "WARNING" in CostModel.frictionless().describe()
     assert "WARNING" not in CostModel().describe()
+
+
+def test_vs_twap_reward_sums_to_shortfall_minus_twap_timing():
+    from rlexec import ExecutionEnv as Env
+    day = MARKET.days[4]
+    twap_timing = (day.open.mean() / day.arrival - 1) * 1e4
+    for mode in ("twap_multiple", "fraction_of_remaining"):
+        action = {"mode": mode, "grid": [0.0, 0.5, 1.0, 2.0, 4.0] if mode == "twap_multiple" else [0.0, 0.1, 0.5]}
+        env = Env(MARKET, CostModel(), action=action, reward="vs_twap")
+        rng, total, done = np.random.default_rng(0), 0.0, False
+        env.reset(day)
+        while not done:
+            _, r, done, _ = env.step(env.action_frac(int(rng.integers(env.n_actions))))
+            total += r
+        assert total == pytest.approx(-(env.result().is_bps - twap_timing))
+
+
+def test_twap_multiple_of_one_is_twap():
+    env = ExecutionEnv(MARKET, CostModel())
+    day = MARKET.days[1]
+    env.reset(day)
+    done = False
+    while not done:
+        _, _, done, _ = env.step(env.action_frac(2))  # grid[2] == 1.0
+    np.testing.assert_allclose(env.result().fills, env.Q / day.n)
+    assert env.result().is_bps == pytest.approx(run_episode(env, day, TWAP()).is_bps)

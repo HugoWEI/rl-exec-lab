@@ -4,8 +4,16 @@ Timeline of a step t: the agent sees features built from bars before t and the o
 chooses a fraction of its remaining inventory, and is filled at that open plus costs.
 Whatever is left at the final step is bought there (forced completion).
 
-Reward per step = -(cost of this fill relative to the arrival price), in bps of the parent
-notional, so the sum of rewards over a day is exactly -implementation shortfall (bps).
+Rewards (bps of the parent notional), two modes with the same optimal policy:
+- "shortfall": -(cost of this fill relative to the arrival price). Sums to -shortfall.
+- "vs_twap":   -(costs of this fill) - (inventory still to buy, minus what TWAP would still have
+  to buy) x (next price move). Sums to -(shortfall - TWAP's frictionless timing). The TWAP term
+  does not depend on the agent's actions; it only removes most of the price noise, which makes
+  learning far less noisy.
+
+Actions for discrete agents, two modes:
+- "twap_multiple" (default): buy m x (remaining / steps left), m from the grid. m = 1 is TWAP.
+- "fraction_of_remaining": buy that fraction of the remaining inventory.
 """
 from __future__ import annotations
 
@@ -30,10 +38,16 @@ class EpisodeResult:
 
 class ExecutionEnv:
     def __init__(self, market: Market, costs: CostModel, parent: dict | None = None,
-                 action_grid=(0.0, 0.05, 0.1, 0.25, 0.5, 1.0)):
+                 action: dict | None = None, reward: str = "shortfall"):
         self.market, self.costs = market, costs
         self.parent = parent or {"mode": "pct_prev_day_volume", "value": 0.01}
-        self.action_grid = tuple(action_grid)  # for discrete agents; step() accepts any fraction in [0, 1]
+        self.action = action or {"mode": "twap_multiple", "grid": [0.0, 0.5, 1.0, 2.0, 4.0]}
+        if self.action["mode"] not in ("twap_multiple", "fraction_of_remaining"):
+            raise ValueError(f"unknown action mode {self.action['mode']!r}")
+        if reward not in ("shortfall", "vs_twap"):
+            raise ValueError(f"unknown reward mode {reward!r}")
+        self.reward_mode = reward
+        self.n_actions = len(self.action["grid"])
         self.obs_names = market.feature_names + PRIVATE_FEATURES
         self.day: Day | None = None
 
@@ -44,6 +58,13 @@ class ExecutionEnv:
         if mode == "fixed_qty":
             return float(value)
         raise ValueError(f"unknown parent mode {mode!r}")
+
+    def action_frac(self, index: int) -> float:
+        """Map a discrete action index to a fraction of remaining inventory (what step() takes)."""
+        v = self.action["grid"][index]
+        if self.action["mode"] == "twap_multiple":
+            return min(1.0, v / (self.day.n - self.t))
+        return float(v)
 
     def reset(self, day: Day) -> np.ndarray:
         self.day, self.t = day, 0
@@ -78,9 +99,15 @@ class ExecutionEnv:
         scale = 1e4 / (self.Q * d.arrival)
         for k, v in parts.items():
             self.acc[k] += v * scale
-        reward = -sum(parts.values()) * scale
         self.fills[t] = q
         self.remaining = 0.0 if last else self.remaining - q
+        if self.reward_mode == "shortfall":
+            reward = -sum(parts.values()) * scale
+        else:
+            reward = -sum(v for k, v in parts.items() if k != "timing") * scale
+            if not last:
+                twap_remaining = self.Q * (1.0 - (t + 1) / d.n)
+                reward -= (self.remaining - twap_remaining) * (float(d.open[t + 1]) - price) * scale
         self.t += 1
         done = last
         obs = None if done else self._obs()

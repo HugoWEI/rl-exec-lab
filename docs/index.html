@@ -79,7 +79,7 @@ footer { color: var(--text-muted); font-size: 13px; margin-top: 20px; }
     </div>
   </header>
   <div id="app"></div>
-  <footer>Task: buy a fixed quantity within one day. Shortfall is the all-in average price paid relative to the day's first price, in basis points; lower is better. Generate a results file with <code>python scripts/run_baselines.py --export results.json</code>.</footer>
+  <footer>Task: buy a fixed quantity within one day. Shortfall is the all-in average price paid relative to the day's first price, in basis points; lower is better. Generate a results file with <code>python scripts/train_ddqn.py --export results.json</code>.</footer>
 </main>
 <div id="tip"></div>
 <script>
@@ -121,6 +121,7 @@ function render(data) {
   document.getElementById("subtitle").textContent =
     `${m.label} · ${m.split === "val" ? "validation" : m.split} split · ${m.n_days} days (${m.first_day} to ${m.last_day})`;
   const rows = data.summary;
+  const tcomps = COMPONENTS.filter(([k]) => c[k].enabled || rows.some(r => r[k] > 0));
   const anyCost = COMPONENTS.some(([k]) => c[k].enabled);
   const costLines = [
     [c.fees.enabled, `<b>Fees</b>: ${c.fees.bps} bps of notional`],
@@ -144,6 +145,7 @@ function render(data) {
         <div class="kv"><div class="k">Decision step</div><div class="v">${cfg.market.step_minutes} min (${1440 / cfg.market.step_minutes} per day)</div></div>
         <div class="kv"><div class="k">Days per split</div><div class="v">${sizes}</div></div>
         <div class="kv"><div class="k">State features</div><div class="v">${cfg.market.features.join(", ")}</div></div>
+        ${cfg.action ? `<div class="kv"><div class="k">Agent actions</div><div class="v">${cfg.action.mode === "twap_multiple" ? "× TWAP rate: " : "share of remaining: "}${cfg.action.grid.join(", ")}</div></div>` : ""}
       </div>
       <ul class="costs">${costLines.map(([on, t]) => `<li class="${on ? "on" : "off"}"><span class="chip ${on ? "on" : "off"}">${on ? "ON" : "OFF"}</span><span class="txt">${t}</span></li>`).join("")}</ul>
       <details><summary>Full cost model text</summary><pre>${esc(data.cost_description)}</pre></details>
@@ -152,10 +154,10 @@ function render(data) {
       <h2>Results</h2>
       <p class="hint">Mean over ${m.n_days} days, in bps. "vs TWAP" below zero means cheaper than TWAP; the interval is a 95% paired bootstrap over days.</p>
       <div class="tablewrap"><table>
-        <thead><tr><th>Policy</th><th>Shortfall</th><th>vs TWAP</th><th>95% CI</th><th>Timing</th>${COMPONENTS.map(([, n]) => `<th>${n}</th>`).join("")}<th>Forced</th></tr></thead>
+        <thead><tr><th>Policy</th><th>Shortfall</th><th>vs TWAP</th><th>95% CI</th><th>Timing</th>${tcomps.map(([, n]) => `<th>${n}</th>`).join("")}<th>Forced</th></tr></thead>
         <tbody>${rows.map(r => `<tr><td><span class="sw" style="background:${color(r.policy)}"></span>${label(r.policy)}${(data.policies.find(p => p.name === r.policy) || {}).uses_future ? '<span class="tag">hindsight</span>' : ""}</td>
           <td>${f1(r.shortfall_bps)}</td><td>${r.policy === "twap" ? "–" : sgn(r.vs_twap)}</td><td>${r.policy === "twap" ? "–" : `${sgn(r.ci_low)} to ${sgn(r.ci_high)}`}</td>
-          <td>${f1(r.timing)}</td>${COMPONENTS.map(([k]) => `<td>${f1(r[k])}</td>`).join("")}<td>${(100 * r.forced_pct).toFixed(1)}%</td></tr>`).join("")}</tbody>
+          <td>${f1(r.timing)}</td>${tcomps.map(([k]) => `<td>${f1(r[k])}</td>`).join("")}<td>${(100 * r.forced_pct).toFixed(1)}%</td></tr>`).join("")}</tbody>
       </table></div>
     </section>
     <section class="card">
@@ -163,6 +165,11 @@ function render(data) {
       <p class="hint">Dot = mean difference in bps, bar = 95% interval. An interval that crosses zero is not distinguishable from TWAP.</p>
       <div id="c-diff"></div>
     </section>
+    ${data.training ? `<section class="card">
+      <h2>DDQN seeds</h2>
+      <p class="hint">Each dot is one independently trained agent: its mean difference vs TWAP in bps on this split. The "DDQN" row above is the average over seeds. A wide spread means the result depends on the random seed.</p>
+      <div id="c-seeds"></div>
+    </section>` : ""}
     <section class="card">
       <h2>Trading costs paid</h2>
       <p class="hint">Mean cost per policy in bps, excluding price timing.</p>
@@ -176,6 +183,7 @@ function render(data) {
 
   drawDiff(rows.filter(r => r.policy !== "twap"));
   drawCosts(rows, c);
+  if (data.training) drawSeeds(data.training);
   const sel = document.getElementById("day");
   sel.innerHTML = data.samples.map((s, i) => `<option value="${i}">${s.date}</option>`).join("");
   sel.onchange = () => drawSchedule(data, +sel.value);
@@ -203,6 +211,25 @@ function drawDiff(rows) {
     hit.onmouseleave = hideTip;
   });
   document.getElementById("c-diff").replaceChildren(svg);
+}
+
+function drawSeeds(tr) {
+  const key = tr.split + "_vs_twap", runs = tr.runs, vals = runs.map(r => r[key]);
+  const W = 960, L = 150, R = 70, H = 84;
+  const lo0 = Math.min(0, ...vals), hi0 = Math.max(0, ...vals), pad = (hi0 - lo0) * 0.12 || 1, lo = lo0 - pad, hi = hi0 + pad;
+  const x = v => L + (v - lo) / (hi - lo) * (W - L - R), y = 30;
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Difference versus TWAP for each DDQN seed" });
+  for (const t of ticks(lo, hi, 7)) {
+    svgEl("line", { x1: x(t), x2: x(t), y1: 6, y2: H - 26, stroke: t === 0 ? "var(--text-muted)" : "var(--grid)" }, svg);
+    svgEl("text", { x: x(t), y: H - 8, "text-anchor": "middle", text: t }, svg);
+  }
+  svgEl("text", { x: L - 12, y: y + 4, "text-anchor": "end", class: "strong", text: `${runs.length} seeds` }, svg);
+  runs.forEach(r => {
+    const dot = svgEl("circle", { cx: x(r[key]), cy: y, r: 6, fill: color("ddqn"), stroke: "var(--surface-1)", "stroke-width": 2 }, svg);
+    dot.onmousemove = e => showTip(e, `<div class="t">Seed ${r.seed}</div><div class="r"><span>vs TWAP</span><b>${sgn(r[key])} bps</b></div><div class="r"><span>Best epoch (validation)</span><span>${r.best_epoch} of ${r.epochs.length}</span></div>`);
+    dot.onmouseleave = hideTip;
+  });
+  document.getElementById("c-seeds").replaceChildren(svg);
 }
 
 function drawCosts(rows, c) {

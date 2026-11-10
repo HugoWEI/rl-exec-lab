@@ -46,14 +46,14 @@ class TWAP(Policy):
 
 
 class RandomPolicy(Policy):
-    """Uniform random choice from the discrete action grid. A reference for what luck looks like."""
+    """Uniform random choice from the discrete action set. A reference for what luck looks like."""
     name = "random"
 
     def __init__(self, seed: int = 0):
         self.rng = np.random.default_rng(seed)
 
     def act(self, obs, env):
-        return float(self.rng.choice(env.action_grid))
+        return env.action_frac(int(self.rng.integers(env.n_actions)))
 
 
 class PerfectForesight(Policy):

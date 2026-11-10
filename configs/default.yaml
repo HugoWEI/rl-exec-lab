@@ -7,7 +7,9 @@ parent:
   mode: pct_prev_day_volume   # or fixed_qty
   value: 0.01                 # buy 1% of the previous day's volume
 
-action_grid: [0.0, 0.05, 0.1, 0.25, 0.5, 1.0]   # fractions of remaining inventory
+action:
+  mode: twap_multiple          # buy m x (remaining / steps left); m = 1 is TWAP. Or fraction_of_remaining
+  grid: [0.0, 0.5, 1.0, 2.0, 4.0]
 
 costs:
   fees:              {enabled: true,  bps: 1.0}
@@ -20,3 +22,19 @@ split:
   train: 0.6
   val: 0.2
   embargo_days: 1
+
+ddqn:
+  hidden: [64, 64]
+  dueling: true
+  lr: 0.0003
+  gamma: 1.0
+  batch_size: 256
+  buffer_size: 200000
+  epochs: 12
+  parallel_envs: 16
+  eps_start: 1.0
+  eps_end: 0.05
+  eps_decay_frac: 0.6          # share of training over which exploration decays
+  tau: 0.005                   # soft target-network update
+  warmup_steps: 5000
+  reward_scale: 0.1

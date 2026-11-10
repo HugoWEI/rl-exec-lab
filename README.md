@@ -1,23 +1,28 @@
 # rl-exec-lab
 
 Test bench for execution policies: buy a fixed quantity within one day at the lowest cost.
-Current state: environment, configurable cost model, baselines, evaluation and a web results viewer. No RL yet.
+Current state: environment, configurable cost model, baselines, a multi-seed DDQN, evaluation and a web results viewer.
 
 **Viewer:** https://hugowei.github.io/rl-exec-lab/ (GitHub Pages, served from `docs/`)
 
 ## Quick start
 
-    pip install numpy pandas pyyaml pytest
+    pip install numpy pandas pyyaml pytest torch
     python -m pytest -q tests
     python scripts/run_baselines.py --synthetic
+    python scripts/train_ddqn.py --synthetic --midday-dip-bps 150 --seeds 2 --epochs 6   # agent learns a planted pattern
 
     # real data (Binance public 1-minute klines)
     python scripts/download_binance.py --symbol BTCUSDT --start 2023-01 --end 2024-12
     python scripts/run_baselines.py --data "data/BTCUSDT-1m-*.zip"
+    python scripts/train_ddqn.py --data "data/BTCUSDT-1m-*.zip" --seeds 5 --export results.json
+
+`train_ddqn.py` uses CUDA when available. Both scripts can also run on GitHub (Actions tab:
+"baselines" and "train"), which publishes the results to the viewer.
 
 ## Viewing results
 
-    python scripts/run_baselines.py --data "data/BTCUSDT-1m-*.zip" --export results.json
+    python scripts/train_ddqn.py --data "data/BTCUSDT-1m-*.zip" --export results.json
 
 Open the viewer and use "Open a results file" to load `results.json` (it stays in your browser).
 To change the demo shown by default, export to `docs/data/demo.json` and push.
@@ -34,8 +39,13 @@ To change the demo shown by default, export to `docs/data/demo.json` and push.
   formulas with the current parameters; every result is split into timing + each cost component.
 - **Baselines**: buy at start, buy at end, TWAP, random, and perfect foresight under the same
   cost model (exact bound when permanent impact is off).
+- **DDQN** (`rlexec/ddqn.py`): double DQN with a dueling MLP. Actions are multiples of the TWAP
+  rate (1 = TWAP). Training uses a reward measured relative to TWAP's inventory path, which has the
+  same optimum as the shortfall but much less noise. Several seeds are trained; the "ddqn" row is
+  the day-by-day average over seeds, and the per-seed spread is reported.
 - **Bias controls**: features use past bars only (tested), chronological train/val/test split with
-  an embargo, validation reported by default, test only with `--reveal-test`.
+  an embargo, validation reported by default, test only with `--reveal-test`. The DDQN's best epoch is picked
+  on validation, so its validation figure is optimistic; test is the unbiased check.
 
 ## Layout
 
@@ -43,6 +53,7 @@ To change the demo shown by default, export to `docs/data/demo.json` and push.
     rlexec/data.py       loading, synthetic bars, feature registry, day slicing, splits
     rlexec/env.py        execution environment
     rlexec/baselines.py  reference policies and the hindsight-optimal schedule
+    rlexec/ddqn.py       DDQN agent and training loop
     rlexec/evaluate.py   per-day results and bootstrap summary
     rlexec/export.py     results JSON for the viewer
     docs/                static viewer (GitHub Pages)
@@ -51,4 +62,4 @@ To change the demo shown by default, export to `docs/data/demo.json` and push.
 
 - Impact parameters are assumptions; calibrating them needs real fills.
 - Fills are at bar opens; there is no order book or queue model.
-- Features are not normalised yet (to be fitted on the training split in step 2).
+- One chronological train/validation/test split; no rolling walk-forward folds yet.

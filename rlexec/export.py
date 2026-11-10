@@ -12,7 +12,7 @@ from .evaluate import summarize
 
 
 def export_json(path, env, cfg: dict, costs, days: list, policies: list, results, meta: dict,
-                n_sample_days: int = 6) -> None:
+                n_sample_days: int = 6, extra: dict | None = None) -> None:
     summ = summarize(results).reset_index()
     wide = results.pivot(index="date", columns="policy", values="is_bps")
     pick = np.unique(np.linspace(0, len(days) - 1, min(n_sample_days, len(days))).astype(int))
@@ -35,5 +35,6 @@ def export_json(path, env, cfg: dict, costs, days: list, policies: list, results
                   "shortfall_bps": {c: wide[c].round(3).tolist() for c in wide.columns}},
         "samples": samples,
     }
+    out.update(extra or {})
     Path(path).parent.mkdir(parents=True, exist_ok=True)
     Path(path).write_text(json.dumps(out, separators=(",", ":")))
