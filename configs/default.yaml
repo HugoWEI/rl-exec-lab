@@ -1,0 +1,22 @@
+market:
+  step_minutes: 5        # decision interval; 288 steps per day
+  window: 60             # steps used for rolling sigma, volume and range
+  features: [ret_1, ret_12, vol, rel_volume, price_vs_arrival]
+
+parent:
+  mode: pct_prev_day_volume   # or fixed_qty
+  value: 0.01                 # buy 1% of the previous day's volume
+
+action_grid: [0.0, 0.05, 0.1, 0.25, 0.5, 1.0]   # fractions of remaining inventory
+
+costs:
+  fees:              {enabled: true,  bps: 1.0}
+  spread:            {enabled: true,  mode: fixed, half_spread_bps: 0.5, range_coef: 0.25}
+  temp_impact:       {enabled: true,  eta: 1.0, delta: 0.5}
+  perm_impact:       {enabled: false, gamma: 0.05}
+  participation_cap: {enabled: true,  max_pct: 0.10}
+
+split:
+  train: 0.6
+  val: 0.2
+  embargo_days: 1

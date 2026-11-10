@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RL Execution Lab</title>
+<style>
+:root {
+  color-scheme: light;
+  --page: #f5f5f3; --surface-1: #fcfcfb; --border: #e3e2de; --grid: #e9e8e4;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #7b7a75;
+  --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
+  --series-5: #e87ba4; --series-6: #008300; --series-7: #6250d6; --series-8: #e34948;
+  --on-bg: #e4f3ec; --on-fg: #0d6b49; --off-bg: #ecebe7; --off-fg: #6b6a65;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --page: #111110; --surface-1: #1a1a19; --border: #33322f; --grid: #2a2a28;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
+    --series-5: #d55181; --series-6: #008300; --series-7: #9085e9; --series-8: #e66767;
+    --on-bg: #17332a; --on-fg: #7fd4b0; --off-bg: #2a2a28; --off-fg: #9a9991;
+  }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--page); color: var(--text-primary);
+  font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+main { max-width: 1040px; margin: 0 auto; padding: 28px 20px 60px; }
+header { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; margin-bottom: 18px; }
+h1 { font-size: 24px; margin: 0; letter-spacing: -0.01em; }
+h2 { font-size: 16px; margin: 0 0 2px; }
+.sub { color: var(--text-secondary); margin: 2px 0 0; }
+.hint { color: var(--text-muted); font-size: 13px; margin: 0 0 12px; }
+.card { background: var(--surface-1); border: 1px solid var(--border); border-radius: 10px; padding: 18px 20px; margin-bottom: 16px; }
+.note { border-left: 3px solid var(--series-4); padding: 8px 12px; background: var(--surface-1); border-radius: 4px; margin-bottom: 16px; color: var(--text-secondary); }
+.btn { font: inherit; padding: 7px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); cursor: pointer; }
+.btn:hover { border-color: var(--text-muted); }
+select { font: inherit; padding: 5px 8px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px 24px; margin-top: 10px; }
+.kv .k { color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
+.kv .v { font-variant-numeric: tabular-nums; }
+ul.costs { list-style: none; padding: 0; margin: 12px 0 0; display: grid; gap: 6px; }
+ul.costs li { display: flex; gap: 10px; align-items: baseline; }
+.chip { font-size: 11px; font-weight: 600; padding: 1px 7px; border-radius: 99px; flex: none; }
+.chip.on { background: var(--on-bg); color: var(--on-fg); } .chip.off { background: var(--off-bg); color: var(--off-fg); }
+li.off .txt { color: var(--text-muted); }
+code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
+details { margin-top: 10px; color: var(--text-secondary); } pre { white-space: pre-wrap; font: 12px/1.5 ui-monospace, Menlo, monospace; }
+.tablewrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
+th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
+th { font-size: 12px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+th:first-child, td:first-child { text-align: left; }
+tr:last-child td { border-bottom: 0; }
+.sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
+.tag { font-size: 11px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 99px; padding: 0 6px; margin-left: 6px; }
+.legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--text-secondary); margin: 6px 0 4px; }
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--text-secondary); font-size: 12px; font-family: inherit; }
+svg text.strong { fill: var(--text-primary); }
+.row { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+#tip { position: fixed; pointer-events: none; background: var(--surface-1); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 16px rgba(0,0,0,.14); display: none; z-index: 10; min-width: 120px; font-variant-numeric: tabular-nums; }
+#tip .t { color: var(--text-muted); margin-bottom: 3px; } #tip .r { display: flex; justify-content: space-between; gap: 16px; }
+footer { color: var(--text-muted); font-size: 13px; margin-top: 20px; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>RL Execution Lab</h1>
+      <p class="sub" id="subtitle">Loading results…</p>
+    </div>
+    <div>
+      <input type="file" id="file" accept=".json,application/json" hidden>
+      <button class="btn" id="load">Open a results file…</button>
+    </div>
+  </header>
+  <div id="app"></div>
+  <footer>Task: buy a fixed quantity within one day. Shortfall is the all-in average price paid relative to the day's first price, in basis points; lower is better. Generate a results file with <code>python scripts/run_baselines.py --export results.json</code>.</footer>
+</main>
+<div id="tip"></div>
+<script>
+const LABELS = { twap: "TWAP", buy_at_start: "Buy at start", buy_at_end: "Buy at end", random: "Random",
+  perfect_foresight: "Perfect foresight", ddqn: "DDQN", ppo: "PPO" };
+const SLOT = { twap: 1, buy_at_start: 2, buy_at_end: 3, random: 4, perfect_foresight: 5, ddqn: 7, ppo: 6 };  // colour follows the policy, not its rank
+const COMPONENTS = [["fees", "Fees"], ["spread", "Spread"], ["temp_impact", "Temp. impact"], ["perm_impact", "Perm. impact"]];
+const NS = "http://www.w3.org/2000/svg";
+const label = p => LABELS[p] || p;
+const color = p => `var(--series-${SLOT[p] || 8})`;
+const f1 = x => (x == null ? "–" : (Math.abs(x) < 0.005 ? 0 : x).toFixed(Math.abs(x) >= 100 ? 0 : Math.abs(x) >= 10 ? 1 : 2));
+const sgn = x => (x > 0.005 ? "+" : "") + f1(x);
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+function svgEl(tag, attrs = {}, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) k === "text" ? (e.textContent = attrs[k]) : e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+const tip = document.getElementById("tip");
+function showTip(evt, html) {
+  tip.innerHTML = html; tip.style.display = "block";
+  const w = tip.offsetWidth, h = tip.offsetHeight;
+  tip.style.left = Math.min(evt.clientX + 14, innerWidth - w - 8) + "px";
+  tip.style.top = Math.max(8, evt.clientY - h - 12) + "px";
+}
+const hideTip = () => (tip.style.display = "none");
+function ticks(lo, hi, n = 6) {
+  const step0 = (hi - lo) / n, mag = 10 ** Math.floor(Math.log10(step0));
+  const step = [1, 2, 5, 10].map(m => m * mag).find(s => s >= step0);
+  const out = [];
+  for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10));
+  return out;
+}
+
+function render(data) {
+  const app = document.getElementById("app");
+  const m = data.meta, cfg = data.config, c = cfg.costs;
+  document.getElementById("subtitle").textContent =
+    `${m.label} · ${m.split === "val" ? "validation" : m.split} split · ${m.n_days} days (${m.first_day} to ${m.last_day})`;
+  const rows = data.summary;
+  const anyCost = COMPONENTS.some(([k]) => c[k].enabled);
+  const costLines = [
+    [c.fees.enabled, `<b>Fees</b>: ${c.fees.bps} bps of notional`],
+    [c.spread.enabled, `<b>Spread</b>: ` + (c.spread.mode === "fixed" ? `fixed half-spread of ${c.spread.half_spread_bps} bps`
+      : `half-spread = ${c.spread.range_coef} × rolling mean (high − low) / close`)],
+    [c.temp_impact.enabled, `<b>Temporary impact</b>: <code>η · σ · (q / V)<sup>δ</sup></code> with η = ${c.temp_impact.eta}, δ = ${c.temp_impact.delta} (η is an assumption, not calibrated)`],
+    [c.perm_impact.enabled, `<b>Permanent impact</b>: later prices shift by <code>γ · bought / previous-day volume</code>, γ = ${c.perm_impact.gamma}`],
+    [c.participation_cap.enabled, `<b>Participation cap</b>: each order ≤ ${(100 * c.participation_cap.max_pct).toFixed(0)}% of V; waived on the last step`],
+  ];
+  const parent = cfg.parent.mode === "pct_prev_day_volume"
+    ? `${(100 * cfg.parent.value).toFixed(2).replace(/\.?0+$/, "")}% of previous day's volume` : `${cfg.parent.value} units`;
+  const sizes = m.split_sizes ? Object.entries(m.split_sizes).map(([k, v]) => `${k} ${v}`).join(" · ") : "–";
+
+  app.innerHTML = `
+    ${m.note ? `<div class="note">${esc(m.note)}</div>` : ""}
+    ${anyCost ? "" : `<div class="note">All costs are off: this run measures pure price timing, not execution quality.</div>`}
+    <section class="card">
+      <h2>Setup</h2>
+      <div class="grid">
+        <div class="kv"><div class="k">Order size</div><div class="v">${parent}</div></div>
+        <div class="kv"><div class="k">Decision step</div><div class="v">${cfg.market.step_minutes} min (${1440 / cfg.market.step_minutes} per day)</div></div>
+        <div class="kv"><div class="k">Days per split</div><div class="v">${sizes}</div></div>
+        <div class="kv"><div class="k">State features</div><div class="v">${cfg.market.features.join(", ")}</div></div>
+      </div>
+      <ul class="costs">${costLines.map(([on, t]) => `<li class="${on ? "on" : "off"}"><span class="chip ${on ? "on" : "off"}">${on ? "ON" : "OFF"}</span><span class="txt">${t}</span></li>`).join("")}</ul>
+      <details><summary>Full cost model text</summary><pre>${esc(data.cost_description)}</pre></details>
+    </section>
+    <section class="card">
+      <h2>Results</h2>
+      <p class="hint">Mean over ${m.n_days} days, in bps. "vs TWAP" below zero means cheaper than TWAP; the interval is a 95% paired bootstrap over days.</p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Policy</th><th>Shortfall</th><th>vs TWAP</th><th>95% CI</th><th>Timing</th>${COMPONENTS.map(([, n]) => `<th>${n}</th>`).join("")}<th>Forced</th></tr></thead>
+        <tbody>${rows.map(r => `<tr><td><span class="sw" style="background:${color(r.policy)}"></span>${label(r.policy)}${(data.policies.find(p => p.name === r.policy) || {}).uses_future ? '<span class="tag">hindsight</span>' : ""}</td>
+          <td>${f1(r.shortfall_bps)}</td><td>${r.policy === "twap" ? "–" : sgn(r.vs_twap)}</td><td>${r.policy === "twap" ? "–" : `${sgn(r.ci_low)} to ${sgn(r.ci_high)}`}</td>
+          <td>${f1(r.timing)}</td>${COMPONENTS.map(([k]) => `<td>${f1(r[k])}</td>`).join("")}<td>${(100 * r.forced_pct).toFixed(1)}%</td></tr>`).join("")}</tbody>
+      </table></div>
+    </section>
+    <section class="card">
+      <h2>Difference vs TWAP</h2>
+      <p class="hint">Dot = mean difference in bps, bar = 95% interval. An interval that crosses zero is not distinguishable from TWAP.</p>
+      <div id="c-diff"></div>
+    </section>
+    <section class="card">
+      <h2>Trading costs paid</h2>
+      <p class="hint">Mean cost per policy in bps, excluding price timing.</p>
+      <div class="legend" id="l-cost"></div><div id="c-cost"></div>
+    </section>
+    <section class="card">
+      <div class="row"><h2>Schedules on one day</h2><label>Day <select id="day"></select></label></div>
+      <p class="hint">Top: price during the day. Bottom: share of the order bought so far, per policy.</p>
+      <div class="legend" id="l-sched"></div><div id="c-price"></div><div id="c-sched"></div>
+    </section>`;
+
+  drawDiff(rows.filter(r => r.policy !== "twap"));
+  drawCosts(rows, c);
+  const sel = document.getElementById("day");
+  sel.innerHTML = data.samples.map((s, i) => `<option value="${i}">${s.date}</option>`).join("");
+  sel.onchange = () => drawSchedule(data, +sel.value);
+  drawSchedule(data, 0);
+}
+
+function drawDiff(rows) {
+  const W = 960, L = 150, R = 70, rowH = 34, H = rows.length * rowH + 34;
+  const lo0 = Math.min(0, ...rows.map(r => r.ci_low)), hi0 = Math.max(0, ...rows.map(r => r.ci_high));
+  const pad = (hi0 - lo0) * 0.04 || 1, lo = lo0 - pad, hi = hi0 + pad;
+  const x = v => L + (v - lo) / (hi - lo) * (W - L - R);
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Difference versus TWAP by policy" });
+  for (const t of ticks(lo, hi, 7)) {
+    svgEl("line", { x1: x(t), x2: x(t), y1: 4, y2: H - 26, stroke: t === 0 ? "var(--text-muted)" : "var(--grid)", "stroke-width": 1 }, svg);
+    svgEl("text", { x: x(t), y: H - 8, "text-anchor": "middle", text: t }, svg);
+  }
+  rows.forEach((r, i) => {
+    const y = 4 + i * rowH + rowH / 2;
+    svgEl("text", { x: L - 12, y: y + 4, "text-anchor": "end", class: "strong", text: label(r.policy) }, svg);
+    svgEl("line", { x1: x(r.ci_low), x2: x(r.ci_high), y1: y, y2: y, stroke: color(r.policy), "stroke-width": 2, "stroke-linecap": "round", opacity: .55 }, svg);
+    svgEl("circle", { cx: x(r.vs_twap), cy: y, r: 5, fill: color(r.policy), stroke: "var(--surface-1)", "stroke-width": 2 }, svg);
+    svgEl("text", { x: x(r.ci_high) + 10, y: y + 4, text: sgn(r.vs_twap) }, svg);
+    const hit = svgEl("rect", { x: 0, y: y - rowH / 2, width: W, height: rowH, fill: "transparent" }, svg);
+    hit.onmousemove = e => showTip(e, `<div class="t">${label(r.policy)} vs TWAP</div><div class="r"><span>Mean</span><b>${sgn(r.vs_twap)} bps</b></div><div class="r"><span>95% CI</span><span>${sgn(r.ci_low)} to ${sgn(r.ci_high)}</span></div>`);
+    hit.onmouseleave = hideTip;
+  });
+  document.getElementById("c-diff").replaceChildren(svg);
+}
+
+function drawCosts(rows, c) {
+  const comps = COMPONENTS.filter(([k]) => c[k].enabled || rows.some(r => r[k] > 0));
+  document.getElementById("l-cost").innerHTML = comps.map(([, n], i) => `<span><span class="sw" style="background:var(--series-${i + 1})"></span>${n}</span>`).join("");
+  const W = 960, L = 150, R = 60, rowH = 34, H = rows.length * rowH + 34;
+  const total = r => comps.reduce((s, [k]) => s + r[k], 0);
+  const hi = Math.max(...rows.map(total)) * 1.05 || 1;
+  const x = v => L + v / hi * (W - L - R);
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Trading costs by policy and component" });
+  for (const t of ticks(0, hi, 6)) {
+    svgEl("line", { x1: x(t), x2: x(t), y1: 4, y2: H - 26, stroke: "var(--grid)", "stroke-width": 1 }, svg);
+    svgEl("text", { x: x(t), y: H - 8, "text-anchor": "middle", text: t }, svg);
+  }
+  rows.forEach((r, i) => {
+    const y = 4 + i * rowH + 8;
+    svgEl("text", { x: L - 12, y: y + 13, "text-anchor": "end", class: "strong", text: label(r.policy) }, svg);
+    let acc = 0;
+    comps.forEach(([k, n], j) => {
+      const v = r[k]; if (v <= 0) return;
+      const x0 = x(acc), w = Math.max(0, x(acc + v) - x0 - 2);
+      const seg = svgEl("rect", { x: x0, y, width: w, height: 18, rx: 2, fill: `var(--series-${j + 1})` }, svg);
+      seg.onmousemove = e => showTip(e, `<div class="t">${label(r.policy)}</div><div class="r"><span>${n}</span><b>${f1(v)} bps</b></div><div class="r"><span>All costs</span><span>${f1(total(r))} bps</span></div>`);
+      seg.onmouseleave = hideTip;
+      acc += v;
+    });
+    svgEl("text", { x: x(acc) + 6, y: y + 13, text: f1(total(r)) }, svg);
+  });
+  document.getElementById("c-cost").replaceChildren(svg);
+}
+
+function drawSchedule(data, idx) {
+  const s = data.samples[idx], names = data.policies.map(p => p.name), n = s.price.length;
+  document.getElementById("l-sched").innerHTML = names.map(p => `<span><span class="sw" style="background:${color(p)}"></span>${label(p)}</span>`).join("");
+  const W = 960, L = 56, R = 16, x = i => L + i / (n - 1) * (W - L - R);
+  const hours = [0, 4, 8, 12, 16, 20, 24];
+  const path = (ys, y) => ys.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join("");
+  const charts = [];
+
+  function frame(H, lo, hi, fmt, tickN, host, withX) {
+    const B = withX ? 26 : 8, y = v => 8 + (hi - v) / (hi - lo) * (H - 8 - B);
+    const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}` });
+    for (const t of ticks(lo, hi, tickN)) {
+      svgEl("line", { x1: L, x2: W - R, y1: y(t), y2: y(t), stroke: "var(--grid)" }, svg);
+      svgEl("text", { x: L - 8, y: y(t) + 4, "text-anchor": "end", text: fmt(t) }, svg);
+    }
+    if (withX) for (const h of hours) svgEl("text", { x: x(h / 24 * (n - 1)), y: H - 8, "text-anchor": "middle", text: String(h).padStart(2, "0") + ":00" }, svg);
+    const cross = svgEl("line", { y1: 8, y2: H - B, stroke: "var(--text-muted)", "stroke-dasharray": "3 3", visibility: "hidden" }, svg);
+    charts.push({ svg, cross });
+    document.getElementById(host).replaceChildren(svg);
+    return { svg, y };
+  }
+  const pmin = Math.min(...s.price), pmax = Math.max(...s.price), pp = (pmax - pmin) * 0.08 || 1;
+  const a = frame(150, pmin - pp, pmax + pp, v => v.toLocaleString("en-US", { maximumFractionDigits: 0 }), 3, "c-price", false);
+  svgEl("path", { d: path(s.price, a.y), fill: "none", stroke: "var(--text-secondary)", "stroke-width": 1.5 }, a.svg);
+  const b = frame(260, 0, 100, v => v + "%", 4, "c-sched", true);
+  for (const p of names) svgEl("path", { d: path(s.bought_pct[p], b.y), fill: "none", stroke: color(p), "stroke-width": 2, "stroke-linejoin": "round" }, b.svg);
+
+  const step = 1440 / n;
+  for (const ch of charts) {
+    const hit = svgEl("rect", { x: L, y: 0, width: W - L - R, height: ch.svg.viewBox.baseVal.height, fill: "transparent" }, ch.svg);
+    hit.onmousemove = e => {
+      const box = ch.svg.getBoundingClientRect(), px = (e.clientX - box.left) / box.width * W;
+      const i = Math.max(0, Math.min(n - 1, Math.round((px - L) / (W - L - R) * (n - 1))));
+      for (const c2 of charts) { c2.cross.setAttribute("x1", x(i)); c2.cross.setAttribute("x2", x(i)); c2.cross.setAttribute("visibility", "visible"); }
+      const mins = i * step, hh = String(Math.floor(mins / 60)).padStart(2, "0"), mm = String(mins % 60).padStart(2, "0");
+      showTip(e, `<div class="t">${s.date} ${hh}:${mm} UTC</div><div class="r"><span>Price</span><b>${s.price[i].toLocaleString("en-US", { maximumFractionDigits: 2 })}</b></div>` +
+        names.map(p => `<div class="r"><span><span class="sw" style="background:${color(p)}"></span>${label(p)}</span><span>${s.bought_pct[p][i].toFixed(1)}%</span></div>`).join(""));
+    };
+    hit.onmouseleave = () => { hideTip(); for (const c2 of charts) c2.cross.setAttribute("visibility", "hidden"); };
+  }
+}
+
+function fail(msg) {
+  document.getElementById("subtitle").textContent = "No results loaded";
+  document.getElementById("app").innerHTML = `<div class="note">${esc(msg)}</div>`;
+}
+document.getElementById("load").onclick = () => document.getElementById("file").click();
+document.getElementById("file").onchange = async e => {
+  const f = e.target.files[0]; if (!f) return;
+  try { render(JSON.parse(await f.text())); } catch (err) { fail("Could not read that file: " + err.message); }
+};
+const src = new URLSearchParams(location.search).get("data") || "data/demo.json";
+fetch(src).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(render)
+  .catch(() => fail("Could not load " + src + ". Use “Open a results file…” to view a local results JSON."));
+</script>
+</body>
+</html>
