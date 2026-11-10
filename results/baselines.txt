@@ -1,0 +1,21 @@
+Cost model - each cost is a fraction of the fill price, charged per child order.
+sigma = rolling std of step log-returns; V = rolling mean step volume (both use past bars only).
+  [ON ] fees         : 1 bps of notional
+  [ON ] spread       : fixed half-spread = 0.5 bps
+  [ON ] temp impact  : eta * sigma * (q/V)^delta, eta=1, delta=0.5  (eta is an assumption, not calibrated)
+  [OFF] perm impact  : later prices shift by gamma * (qty already bought / prev-day volume), gamma=0.05  (counterfactual: history never saw these trades)
+  [ON ] particip. cap: q <= 10% of V; waived on the final step (forced completion, reported as forced_pct)
+  Worked example: sigma=5 bps, q/V=5% -> fees 1.00 + spread 0.50 + temp impact 1.12 = 2.62 bps per unit bought 
+
+days: train=436, val=145, test=145  -> reporting 'val'
+
+Shortfall vs arrival price, bps (lower is better; vs_twap < 0 beats TWAP):
+                   shortfall_bps  vs_twap  ci_low  ci_high  timing  fees  spread  temp_impact  perm_impact  forced_pct  n_days
+policy                                                                                                                        
+perfect_foresight        -162.01  -152.36 -170.26  -135.64 -168.54  0.98    0.49         5.06         0.00        0.00     145
+twap                       -9.65     0.00    0.00     0.00  -12.62  1.00    0.50         1.47         0.00        0.00     145
+buy_at_end                 -0.50     9.15  -14.87    32.64   -8.25  1.00    0.50         6.25         0.00        0.14     145
+random                      0.61    10.26   -8.40    30.18   -5.22  1.00    0.50         4.33         0.00        0.00     145
+buy_at_start                1.88    11.53   -8.04    32.90   -4.14  1.00    0.50         4.52         0.00        0.00     145
+
+wrote docs/data/demo.json
