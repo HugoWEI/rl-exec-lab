@@ -1,0 +1,45 @@
+name: baselines
+
+# Downloads Binance 1-minute bars, runs the baseline policies and publishes the
+# results to the viewer (docs/data/demo.json). Run it from the Actions tab.
+on:
+  workflow_dispatch:
+    inputs:
+      symbol: {description: "Binance spot symbol", default: "BTCUSDT"}
+      start: {description: "First month (YYYY-MM)", default: "2023-01"}
+      end: {description: "Last month (YYYY-MM)", default: "2024-12"}
+  push:
+    branches: [main]
+    paths: [".github/workflows/baselines.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      SYMBOL: ${{ inputs.symbol || 'BTCUSDT' }}
+      START: ${{ inputs.start || '2023-01' }}
+      END: ${{ inputs.end || '2024-12' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy pandas pyyaml pytest
+      - run: python -m pytest -q tests
+      - run: python scripts/download_binance.py --symbol "$SYMBOL" --start "$START" --end "$END"
+      - name: Run baselines (validation split)
+        run: |
+          mkdir -p results
+          python scripts/run_baselines.py --data "data/${SYMBOL}-1m-*.zip" \
+            --export docs/data/demo.json \
+            --label "${SYMBOL} spot, 1-minute bars from Binance, ${START} to ${END}" | tee results/baselines.txt
+      - name: Publish results
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/demo.json results/baselines.txt
+          git commit -m "Update baseline results (${SYMBOL} ${START} to ${END})" || echo "no changes"
+          git push
