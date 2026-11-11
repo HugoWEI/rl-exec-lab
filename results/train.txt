@@ -36,150 +36,150 @@ methods ['dqn', 'ddqn', 'dueling_ddqn', 'ppo'] x 3 seeds on cpu
 state = ['ret_1', 'ret_3', 'ret_12', 'ret_48', 'vol', 'rel_volume', 'range', 'price_vs_arrival', 'flow_1', 'flow_12', 'vol_ratio', 'range_pos', 'vwap_dev', 'tod_sin', 'tod_cos', 'time_remaining', 'inventory_remaining']
 actions = {'mode': 'twap_multiple', 'grid': [0.0, 0.5, 1.0, 2.0, 4.0]}
 
-  dqn           seed 0 epoch  1/12  val vs TWAP    +2.18 bps  (best +2.18 @ 1) eps 0.87    18s
-  dqn           seed 0 epoch  2/12  val vs TWAP    +1.17 bps  (best +1.17 @ 2) eps 0.74    37s
-  dqn           seed 0 epoch  3/12  val vs TWAP    +0.77 bps  (best +0.77 @ 3) eps 0.60    57s
-  dqn           seed 0 epoch  4/12  val vs TWAP    +0.22 bps  (best +0.22 @ 4) eps 0.47    76s
-  dqn           seed 0 epoch  5/12  val vs TWAP    -0.71 bps  (best -0.71 @ 5) eps 0.34    95s
-  dqn           seed 0 epoch  6/12  val vs TWAP    -0.91 bps  (best -0.91 @ 6) eps 0.21   114s
-  dqn           seed 0 epoch  7/12  val vs TWAP    -0.28 bps  (best -0.91 @ 6) eps 0.08   133s
-  dqn           seed 0 epoch  8/12  val vs TWAP    -2.90 bps  (best -2.90 @ 8) eps 0.05   152s
-  dqn           seed 0 epoch  9/12  val vs TWAP    +0.88 bps  (best -2.90 @ 8) eps 0.05   170s
-  dqn           seed 0 epoch 10/12  val vs TWAP    +4.37 bps  (best -2.90 @ 8) eps 0.05   190s
-  dqn           seed 0 epoch 11/12  val vs TWAP    +2.38 bps  (best -2.90 @ 8) eps 0.05   209s
-  dqn           seed 0 epoch 12/12  val vs TWAP    +0.52 bps  (best -2.90 @ 8) eps 0.05   228s
-  dqn           seed 1 epoch  1/12  val vs TWAP    +1.34 bps  (best +1.34 @ 1) eps 0.87    19s
-  dqn           seed 1 epoch  2/12  val vs TWAP    -0.31 bps  (best -0.31 @ 2) eps 0.74    37s
-  dqn           seed 1 epoch  3/12  val vs TWAP    -2.23 bps  (best -2.23 @ 3) eps 0.60    56s
-  dqn           seed 1 epoch  4/12  val vs TWAP    +2.16 bps  (best -2.23 @ 3) eps 0.47    75s
-  dqn           seed 1 epoch  5/12  val vs TWAP    -0.36 bps  (best -2.23 @ 3) eps 0.34    93s
-  dqn           seed 1 epoch  6/12  val vs TWAP    -0.95 bps  (best -2.23 @ 3) eps 0.21   112s
-  dqn           seed 1 epoch  7/12  val vs TWAP    -1.47 bps  (best -2.23 @ 3) eps 0.08   131s
-  dqn           seed 1 epoch  8/12  val vs TWAP    -0.16 bps  (best -2.23 @ 3) eps 0.05   150s
-  dqn           seed 1 epoch  9/12  val vs TWAP    -3.86 bps  (best -3.86 @ 9) eps 0.05   169s
-  dqn           seed 1 epoch 10/12  val vs TWAP    -3.98 bps  (best -3.98 @ 10) eps 0.05   187s
-  dqn           seed 1 epoch 11/12  val vs TWAP    -2.08 bps  (best -3.98 @ 10) eps 0.05   206s
-  dqn           seed 1 epoch 12/12  val vs TWAP    -2.47 bps  (best -3.98 @ 10) eps 0.05   225s
-  dqn           seed 2 epoch  1/12  val vs TWAP    +1.12 bps  (best +1.12 @ 1) eps 0.87    18s
-  dqn           seed 2 epoch  2/12  val vs TWAP    -1.22 bps  (best -1.22 @ 2) eps 0.74    37s
-  dqn           seed 2 epoch  3/12  val vs TWAP    -0.75 bps  (best -1.22 @ 2) eps 0.60    56s
-  dqn           seed 2 epoch  4/12  val vs TWAP    +3.58 bps  (best -1.22 @ 2) eps 0.47    74s
-  dqn           seed 2 epoch  5/12  val vs TWAP    +0.03 bps  (best -1.22 @ 2) eps 0.34    93s
-  dqn           seed 2 epoch  6/12  val vs TWAP    -3.92 bps  (best -3.92 @ 6) eps 0.21   112s
-  dqn           seed 2 epoch  7/12  val vs TWAP    +3.24 bps  (best -3.92 @ 6) eps 0.08   131s
-  dqn           seed 2 epoch  8/12  val vs TWAP    -0.05 bps  (best -3.92 @ 6) eps 0.05   150s
-  dqn           seed 2 epoch  9/12  val vs TWAP    +2.31 bps  (best -3.92 @ 6) eps 0.05   169s
-  dqn           seed 2 epoch 10/12  val vs TWAP    -4.82 bps  (best -4.82 @ 10) eps 0.05   187s
-  dqn           seed 2 epoch 11/12  val vs TWAP    -0.78 bps  (best -4.82 @ 10) eps 0.05   206s
-  dqn           seed 2 epoch 12/12  val vs TWAP    -0.80 bps  (best -4.82 @ 10) eps 0.05   225s
-  ddqn          seed 0 epoch  1/12  val vs TWAP    +0.09 bps  (best +0.09 @ 1) eps 0.87    19s
-  ddqn          seed 0 epoch  2/12  val vs TWAP    +0.44 bps  (best +0.09 @ 1) eps 0.74    39s
-  ddqn          seed 0 epoch  3/12  val vs TWAP    -0.19 bps  (best -0.19 @ 3) eps 0.60    58s
-  ddqn          seed 0 epoch  4/12  val vs TWAP    +0.76 bps  (best -0.19 @ 3) eps 0.47    78s
-  ddqn          seed 0 epoch  5/12  val vs TWAP    +1.12 bps  (best -0.19 @ 3) eps 0.34    98s
-  ddqn          seed 0 epoch  6/12  val vs TWAP    -4.16 bps  (best -4.16 @ 6) eps 0.21   117s
-  ddqn          seed 0 epoch  7/12  val vs TWAP    +2.51 bps  (best -4.16 @ 6) eps 0.08   137s
-  ddqn          seed 0 epoch  8/12  val vs TWAP    -2.16 bps  (best -4.16 @ 6) eps 0.05   156s
-  ddqn          seed 0 epoch  9/12  val vs TWAP    +0.63 bps  (best -4.16 @ 6) eps 0.05   176s
-  ddqn          seed 0 epoch 10/12  val vs TWAP    +0.63 bps  (best -4.16 @ 6) eps 0.05   196s
-  ddqn          seed 0 epoch 11/12  val vs TWAP    +0.94 bps  (best -4.16 @ 6) eps 0.05   215s
-  ddqn          seed 0 epoch 12/12  val vs TWAP    +0.68 bps  (best -4.16 @ 6) eps 0.05   235s
-  ddqn          seed 1 epoch  1/12  val vs TWAP    +1.36 bps  (best +1.36 @ 1) eps 0.87    19s
-  ddqn          seed 1 epoch  2/12  val vs TWAP    +0.69 bps  (best +0.69 @ 2) eps 0.74    39s
-  ddqn          seed 1 epoch  3/12  val vs TWAP    -0.56 bps  (best -0.56 @ 3) eps 0.60    59s
-  ddqn          seed 1 epoch  4/12  val vs TWAP    +0.24 bps  (best -0.56 @ 3) eps 0.47    78s
-  ddqn          seed 1 epoch  5/12  val vs TWAP    +1.64 bps  (best -0.56 @ 3) eps 0.34    98s
-  ddqn          seed 1 epoch  6/12  val vs TWAP    +3.87 bps  (best -0.56 @ 3) eps 0.21   117s
-  ddqn          seed 1 epoch  7/12  val vs TWAP    -2.11 bps  (best -2.11 @ 7) eps 0.08   137s
-  ddqn          seed 1 epoch  8/12  val vs TWAP    -2.38 bps  (best -2.38 @ 8) eps 0.05   157s
-  ddqn          seed 1 epoch  9/12  val vs TWAP    +0.58 bps  (best -2.38 @ 8) eps 0.05   176s
-  ddqn          seed 1 epoch 10/12  val vs TWAP    -2.22 bps  (best -2.38 @ 8) eps 0.05   196s
-  ddqn          seed 1 epoch 11/12  val vs TWAP    -0.64 bps  (best -2.38 @ 8) eps 0.05   216s
-  ddqn          seed 1 epoch 12/12  val vs TWAP    +0.03 bps  (best -2.38 @ 8) eps 0.05   235s
-  ddqn          seed 2 epoch  1/12  val vs TWAP    +0.92 bps  (best +0.92 @ 1) eps 0.87    19s
-  ddqn          seed 2 epoch  2/12  val vs TWAP    -0.83 bps  (best -0.83 @ 2) eps 0.74    39s
-  ddqn          seed 2 epoch  3/12  val vs TWAP    -0.30 bps  (best -0.83 @ 2) eps 0.60    58s
-  ddqn          seed 2 epoch  4/12  val vs TWAP    -2.03 bps  (best -2.03 @ 4) eps 0.47    78s
-  ddqn          seed 2 epoch  5/12  val vs TWAP    -6.66 bps  (best -6.66 @ 5) eps 0.34    97s
-  ddqn          seed 2 epoch  6/12  val vs TWAP    -3.76 bps  (best -6.66 @ 5) eps 0.21   117s
-  ddqn          seed 2 epoch  7/12  val vs TWAP    +0.11 bps  (best -6.66 @ 5) eps 0.08   137s
-  ddqn          seed 2 epoch  8/12  val vs TWAP    -3.59 bps  (best -6.66 @ 5) eps 0.05   156s
-  ddqn          seed 2 epoch  9/12  val vs TWAP    +0.83 bps  (best -6.66 @ 5) eps 0.05   176s
-  ddqn          seed 2 epoch 10/12  val vs TWAP    +2.36 bps  (best -6.66 @ 5) eps 0.05   195s
-  ddqn          seed 2 epoch 11/12  val vs TWAP    -1.03 bps  (best -6.66 @ 5) eps 0.05   215s
-  ddqn          seed 2 epoch 12/12  val vs TWAP    +0.89 bps  (best -6.66 @ 5) eps 0.05   234s
-  dueling_ddqn  seed 0 epoch  1/12  val vs TWAP    +0.08 bps  (best +0.08 @ 1) eps 0.87    22s
-  dueling_ddqn  seed 0 epoch  2/12  val vs TWAP    -0.34 bps  (best -0.34 @ 2) eps 0.74    45s
-  dueling_ddqn  seed 0 epoch  3/12  val vs TWAP    -1.04 bps  (best -1.04 @ 3) eps 0.60    68s
-  dueling_ddqn  seed 0 epoch  4/12  val vs TWAP    +1.38 bps  (best -1.04 @ 3) eps 0.47    91s
-  dueling_ddqn  seed 0 epoch  5/12  val vs TWAP    +1.45 bps  (best -1.04 @ 3) eps 0.34   114s
-  dueling_ddqn  seed 0 epoch  6/12  val vs TWAP    +3.10 bps  (best -1.04 @ 3) eps 0.21   138s
-  dueling_ddqn  seed 0 epoch  7/12  val vs TWAP    +4.67 bps  (best -1.04 @ 3) eps 0.08   160s
-  dueling_ddqn  seed 0 epoch  8/12  val vs TWAP    +2.17 bps  (best -1.04 @ 3) eps 0.05   184s
-  dueling_ddqn  seed 0 epoch  9/12  val vs TWAP    +3.05 bps  (best -1.04 @ 3) eps 0.05   207s
-  dueling_ddqn  seed 0 epoch 10/12  val vs TWAP    +1.99 bps  (best -1.04 @ 3) eps 0.05   230s
-  dueling_ddqn  seed 0 epoch 11/12  val vs TWAP    +1.73 bps  (best -1.04 @ 3) eps 0.05   253s
-  dueling_ddqn  seed 0 epoch 12/12  val vs TWAP    -0.67 bps  (best -1.04 @ 3) eps 0.05   276s
-  dueling_ddqn  seed 1 epoch  1/12  val vs TWAP    +2.21 bps  (best +2.21 @ 1) eps 0.87    23s
-  dueling_ddqn  seed 1 epoch  2/12  val vs TWAP    +0.62 bps  (best +0.62 @ 2) eps 0.74    46s
-  dueling_ddqn  seed 1 epoch  3/12  val vs TWAP    -1.08 bps  (best -1.08 @ 3) eps 0.60    69s
-  dueling_ddqn  seed 1 epoch  4/12  val vs TWAP    -1.32 bps  (best -1.32 @ 4) eps 0.47    92s
-  dueling_ddqn  seed 1 epoch  5/12  val vs TWAP    -2.93 bps  (best -2.93 @ 5) eps 0.34   116s
-  dueling_ddqn  seed 1 epoch  6/12  val vs TWAP    -6.08 bps  (best -6.08 @ 6) eps 0.21   139s
-  dueling_ddqn  seed 1 epoch  7/12  val vs TWAP    -2.44 bps  (best -6.08 @ 6) eps 0.08   162s
-  dueling_ddqn  seed 1 epoch  8/12  val vs TWAP    -0.16 bps  (best -6.08 @ 6) eps 0.05   185s
-  dueling_ddqn  seed 1 epoch  9/12  val vs TWAP    +2.18 bps  (best -6.08 @ 6) eps 0.05   209s
-  dueling_ddqn  seed 1 epoch 10/12  val vs TWAP    +1.68 bps  (best -6.08 @ 6) eps 0.05   232s
-  dueling_ddqn  seed 1 epoch 11/12  val vs TWAP    +3.80 bps  (best -6.08 @ 6) eps 0.05   255s
-  dueling_ddqn  seed 1 epoch 12/12  val vs TWAP    +3.52 bps  (best -6.08 @ 6) eps 0.05   279s
-  dueling_ddqn  seed 2 epoch  1/12  val vs TWAP    -0.34 bps  (best -0.34 @ 1) eps 0.87    23s
-  dueling_ddqn  seed 2 epoch  2/12  val vs TWAP    -0.99 bps  (best -0.99 @ 2) eps 0.74    46s
-  dueling_ddqn  seed 2 epoch  3/12  val vs TWAP    +1.72 bps  (best -0.99 @ 2) eps 0.60    69s
-  dueling_ddqn  seed 2 epoch  4/12  val vs TWAP    +7.21 bps  (best -0.99 @ 2) eps 0.47    92s
-  dueling_ddqn  seed 2 epoch  5/12  val vs TWAP    +5.35 bps  (best -0.99 @ 2) eps 0.34   116s
-  dueling_ddqn  seed 2 epoch  6/12  val vs TWAP    +1.23 bps  (best -0.99 @ 2) eps 0.21   139s
-  dueling_ddqn  seed 2 epoch  7/12  val vs TWAP    +5.29 bps  (best -0.99 @ 2) eps 0.08   162s
-  dueling_ddqn  seed 2 epoch  8/12  val vs TWAP    -1.49 bps  (best -1.49 @ 8) eps 0.05   185s
-  dueling_ddqn  seed 2 epoch  9/12  val vs TWAP    +2.85 bps  (best -1.49 @ 8) eps 0.05   209s
-  dueling_ddqn  seed 2 epoch 10/12  val vs TWAP    +3.47 bps  (best -1.49 @ 8) eps 0.05   232s
-  dueling_ddqn  seed 2 epoch 11/12  val vs TWAP    +1.69 bps  (best -1.49 @ 8) eps 0.05   255s
-  dueling_ddqn  seed 2 epoch 12/12  val vs TWAP    +0.04 bps  (best -1.49 @ 8) eps 0.05   279s
-  ppo           seed 0 epoch  1/12  val vs TWAP    -0.16 bps  (best -0.16 @ 1)     13s
-  ppo           seed 0 epoch  2/12  val vs TWAP    +1.42 bps  (best -0.16 @ 1)     25s
-  ppo           seed 0 epoch  3/12  val vs TWAP    -0.68 bps  (best -0.68 @ 3)     38s
-  ppo           seed 0 epoch  4/12  val vs TWAP    +1.10 bps  (best -0.68 @ 3)     50s
-  ppo           seed 0 epoch  5/12  val vs TWAP    -3.41 bps  (best -3.41 @ 5)     63s
-  ppo           seed 0 epoch  6/12  val vs TWAP    +1.02 bps  (best -3.41 @ 5)     76s
-  ppo           seed 0 epoch  7/12  val vs TWAP    -2.60 bps  (best -3.41 @ 5)     88s
-  ppo           seed 0 epoch  8/12  val vs TWAP    -2.15 bps  (best -3.41 @ 5)    101s
-  ppo           seed 0 epoch  9/12  val vs TWAP    +0.04 bps  (best -3.41 @ 5)    114s
-  ppo           seed 0 epoch 10/12  val vs TWAP    -0.18 bps  (best -3.41 @ 5)    126s
-  ppo           seed 0 epoch 11/12  val vs TWAP    +2.06 bps  (best -3.41 @ 5)    139s
-  ppo           seed 0 epoch 12/12  val vs TWAP    +0.28 bps  (best -3.41 @ 5)    151s
-  ppo           seed 1 epoch  1/12  val vs TWAP    +7.13 bps  (best +7.13 @ 1)     13s
-  ppo           seed 1 epoch  2/12  val vs TWAP    +2.53 bps  (best +2.53 @ 2)     25s
-  ppo           seed 1 epoch  3/12  val vs TWAP    +0.13 bps  (best +0.13 @ 3)     38s
-  ppo           seed 1 epoch  4/12  val vs TWAP    +0.15 bps  (best +0.13 @ 3)     50s
-  ppo           seed 1 epoch  5/12  val vs TWAP    +1.78 bps  (best +0.13 @ 3)     63s
-  ppo           seed 1 epoch  6/12  val vs TWAP    +0.71 bps  (best +0.13 @ 3)     75s
-  ppo           seed 1 epoch  7/12  val vs TWAP    +0.34 bps  (best +0.13 @ 3)     88s
-  ppo           seed 1 epoch  8/12  val vs TWAP    -1.98 bps  (best -1.98 @ 8)    101s
-  ppo           seed 1 epoch  9/12  val vs TWAP    +1.03 bps  (best -1.98 @ 8)    113s
-  ppo           seed 1 epoch 10/12  val vs TWAP    +0.14 bps  (best -1.98 @ 8)    126s
-  ppo           seed 1 epoch 11/12  val vs TWAP    -0.01 bps  (best -1.98 @ 8)    138s
-  ppo           seed 1 epoch 12/12  val vs TWAP    +1.89 bps  (best -1.98 @ 8)    151s
-  ppo           seed 2 epoch  1/12  val vs TWAP    -0.00 bps  (best -0.00 @ 1)     13s
-  ppo           seed 2 epoch  2/12  val vs TWAP    +3.19 bps  (best -0.00 @ 1)     25s
-  ppo           seed 2 epoch  3/12  val vs TWAP    +2.32 bps  (best -0.00 @ 1)     38s
-  ppo           seed 2 epoch  4/12  val vs TWAP    -0.93 bps  (best -0.93 @ 4)     50s
-  ppo           seed 2 epoch  5/12  val vs TWAP    +1.90 bps  (best -0.93 @ 4)     63s
-  ppo           seed 2 epoch  6/12  val vs TWAP    +2.99 bps  (best -0.93 @ 4)     76s
-  ppo           seed 2 epoch  7/12  val vs TWAP    +2.28 bps  (best -0.93 @ 4)     88s
-  ppo           seed 2 epoch  8/12  val vs TWAP    +1.17 bps  (best -0.93 @ 4)    101s
-  ppo           seed 2 epoch  9/12  val vs TWAP    +0.04 bps  (best -0.93 @ 4)    113s
-  ppo           seed 2 epoch 10/12  val vs TWAP    -1.42 bps  (best -1.42 @ 10)    126s
-  ppo           seed 2 epoch 11/12  val vs TWAP    +2.06 bps  (best -1.42 @ 10)    139s
-  ppo           seed 2 epoch 12/12  val vs TWAP    +2.78 bps  (best -1.42 @ 10)    151s
+  dqn           seed 0 epoch  1/12  train    +0.29  val vs TWAP    +2.18 bps  (best +2.18 @ 1) eps 0.87    14s
+  dqn           seed 0 epoch  2/12  train    -2.25  val vs TWAP    +1.17 bps  (best +1.17 @ 2) eps 0.74    29s
+  dqn           seed 0 epoch  3/12  train    +0.78  val vs TWAP    +0.77 bps  (best +0.77 @ 3) eps 0.60    43s
+  dqn           seed 0 epoch  4/12  train    +0.34  val vs TWAP    +0.22 bps  (best +0.22 @ 4) eps 0.47    58s
+  dqn           seed 0 epoch  5/12  train    +2.30  val vs TWAP    -0.71 bps  (best -0.71 @ 5) eps 0.34    73s
+  dqn           seed 0 epoch  6/12  train    +1.49  val vs TWAP    -0.91 bps  (best -0.91 @ 6) eps 0.21    87s
+  dqn           seed 0 epoch  7/12  train   +11.10  val vs TWAP    -0.28 bps  (best -0.91 @ 6) eps 0.08   102s
+  dqn           seed 0 epoch  8/12  train    -0.07  val vs TWAP    -2.90 bps  (best -2.90 @ 8) eps 0.05   116s
+  dqn           seed 0 epoch  9/12  train    +0.32  val vs TWAP    +0.88 bps  (best -2.90 @ 8) eps 0.05   131s
+  dqn           seed 0 epoch 10/12  train    -2.58  val vs TWAP    +4.37 bps  (best -2.90 @ 8) eps 0.05   145s
+  dqn           seed 0 epoch 11/12  train    -0.52  val vs TWAP    +2.38 bps  (best -2.90 @ 8) eps 0.05   160s
+  dqn           seed 0 epoch 12/12  train    +2.73  val vs TWAP    +0.52 bps  (best -2.90 @ 8) eps 0.05   174s
+  dqn           seed 1 epoch  1/12  train    +0.59  val vs TWAP    +1.34 bps  (best +1.34 @ 1) eps 0.87    14s
+  dqn           seed 1 epoch  2/12  train    -1.41  val vs TWAP    -0.31 bps  (best -0.31 @ 2) eps 0.74    29s
+  dqn           seed 1 epoch  3/12  train    -0.43  val vs TWAP    -2.23 bps  (best -2.23 @ 3) eps 0.60    43s
+  dqn           seed 1 epoch  4/12  train    +3.70  val vs TWAP    +2.16 bps  (best -2.23 @ 3) eps 0.47    58s
+  dqn           seed 1 epoch  5/12  train    +3.07  val vs TWAP    -0.36 bps  (best -2.23 @ 3) eps 0.34    72s
+  dqn           seed 1 epoch  6/12  train    +4.40  val vs TWAP    -0.95 bps  (best -2.23 @ 3) eps 0.21    87s
+  dqn           seed 1 epoch  7/12  train   +10.80  val vs TWAP    -1.47 bps  (best -2.23 @ 3) eps 0.08   101s
+  dqn           seed 1 epoch  8/12  train    +2.02  val vs TWAP    -0.16 bps  (best -2.23 @ 3) eps 0.05   116s
+  dqn           seed 1 epoch  9/12  train    +1.80  val vs TWAP    -3.86 bps  (best -3.86 @ 9) eps 0.05   130s
+  dqn           seed 1 epoch 10/12  train    +1.23  val vs TWAP    -3.98 bps  (best -3.98 @ 10) eps 0.05   145s
+  dqn           seed 1 epoch 11/12  train    +0.98  val vs TWAP    -2.08 bps  (best -3.98 @ 10) eps 0.05   159s
+  dqn           seed 1 epoch 12/12  train    -0.23  val vs TWAP    -2.47 bps  (best -3.98 @ 10) eps 0.05   174s
+  dqn           seed 2 epoch  1/12  train    -0.90  val vs TWAP    +1.12 bps  (best +1.12 @ 1) eps 0.87    14s
+  dqn           seed 2 epoch  2/12  train    +1.39  val vs TWAP    -1.22 bps  (best -1.22 @ 2) eps 0.74    29s
+  dqn           seed 2 epoch  3/12  train    +3.83  val vs TWAP    -0.75 bps  (best -1.22 @ 2) eps 0.60    43s
+  dqn           seed 2 epoch  4/12  train    +0.14  val vs TWAP    +3.58 bps  (best -1.22 @ 2) eps 0.47    58s
+  dqn           seed 2 epoch  5/12  train    -0.20  val vs TWAP    +0.03 bps  (best -1.22 @ 2) eps 0.34    73s
+  dqn           seed 2 epoch  6/12  train    -2.25  val vs TWAP    -3.92 bps  (best -3.92 @ 6) eps 0.21    87s
+  dqn           seed 2 epoch  7/12  train   +12.28  val vs TWAP    +3.24 bps  (best -3.92 @ 6) eps 0.08   102s
+  dqn           seed 2 epoch  8/12  train    -1.29  val vs TWAP    -0.05 bps  (best -3.92 @ 6) eps 0.05   116s
+  dqn           seed 2 epoch  9/12  train    -1.64  val vs TWAP    +2.31 bps  (best -3.92 @ 6) eps 0.05   131s
+  dqn           seed 2 epoch 10/12  train    +5.77  val vs TWAP    -4.82 bps  (best -4.82 @ 10) eps 0.05   145s
+  dqn           seed 2 epoch 11/12  train    +2.82  val vs TWAP    -0.78 bps  (best -4.82 @ 10) eps 0.05   160s
+  dqn           seed 2 epoch 12/12  train    +2.48  val vs TWAP    -0.80 bps  (best -4.82 @ 10) eps 0.05   174s
+  ddqn          seed 0 epoch  1/12  train    -1.41  val vs TWAP    +0.09 bps  (best +0.09 @ 1) eps 0.87    15s
+  ddqn          seed 0 epoch  2/12  train    +1.09  val vs TWAP    +0.44 bps  (best +0.09 @ 1) eps 0.74    30s
+  ddqn          seed 0 epoch  3/12  train    +0.02  val vs TWAP    -0.19 bps  (best -0.19 @ 3) eps 0.60    45s
+  ddqn          seed 0 epoch  4/12  train    -2.53  val vs TWAP    +0.76 bps  (best -0.19 @ 3) eps 0.47    60s
+  ddqn          seed 0 epoch  5/12  train    +0.39  val vs TWAP    +1.12 bps  (best -0.19 @ 3) eps 0.34    75s
+  ddqn          seed 0 epoch  6/12  train    +7.63  val vs TWAP    -4.16 bps  (best -4.16 @ 6) eps 0.21    90s
+  ddqn          seed 0 epoch  7/12  train   +17.91  val vs TWAP    +2.51 bps  (best -4.16 @ 6) eps 0.08   105s
+  ddqn          seed 0 epoch  8/12  train    +5.09  val vs TWAP    -2.16 bps  (best -4.16 @ 6) eps 0.05   120s
+  ddqn          seed 0 epoch  9/12  train   +12.10  val vs TWAP    +0.63 bps  (best -4.16 @ 6) eps 0.05   135s
+  ddqn          seed 0 epoch 10/12  train    -0.90  val vs TWAP    +0.63 bps  (best -4.16 @ 6) eps 0.05   150s
+  ddqn          seed 0 epoch 11/12  train    +2.02  val vs TWAP    +0.94 bps  (best -4.16 @ 6) eps 0.05   165s
+  ddqn          seed 0 epoch 12/12  train    +3.10  val vs TWAP    +0.68 bps  (best -4.16 @ 6) eps 0.05   180s
+  ddqn          seed 1 epoch  1/12  train    +0.47  val vs TWAP    +1.36 bps  (best +1.36 @ 1) eps 0.87    15s
+  ddqn          seed 1 epoch  2/12  train    -2.69  val vs TWAP    +0.69 bps  (best +0.69 @ 2) eps 0.74    30s
+  ddqn          seed 1 epoch  3/12  train    +0.67  val vs TWAP    -0.56 bps  (best -0.56 @ 3) eps 0.60    45s
+  ddqn          seed 1 epoch  4/12  train    +2.36  val vs TWAP    +0.24 bps  (best -0.56 @ 3) eps 0.47    60s
+  ddqn          seed 1 epoch  5/12  train    +1.72  val vs TWAP    +1.64 bps  (best -0.56 @ 3) eps 0.34    75s
+  ddqn          seed 1 epoch  6/12  train    +2.24  val vs TWAP    +3.87 bps  (best -0.56 @ 3) eps 0.21    90s
+  ddqn          seed 1 epoch  7/12  train    +5.67  val vs TWAP    -2.11 bps  (best -2.11 @ 7) eps 0.08   105s
+  ddqn          seed 1 epoch  8/12  train    +3.71  val vs TWAP    -2.38 bps  (best -2.38 @ 8) eps 0.05   120s
+  ddqn          seed 1 epoch  9/12  train    -0.96  val vs TWAP    +0.58 bps  (best -2.38 @ 8) eps 0.05   135s
+  ddqn          seed 1 epoch 10/12  train   +15.83  val vs TWAP    -2.22 bps  (best -2.38 @ 8) eps 0.05   150s
+  ddqn          seed 1 epoch 11/12  train    +0.35  val vs TWAP    -0.64 bps  (best -2.38 @ 8) eps 0.05   165s
+  ddqn          seed 1 epoch 12/12  train    -0.72  val vs TWAP    +0.03 bps  (best -2.38 @ 8) eps 0.05   180s
+  ddqn          seed 2 epoch  1/12  train    -1.17  val vs TWAP    +0.92 bps  (best +0.92 @ 1) eps 0.87    15s
+  ddqn          seed 2 epoch  2/12  train    +3.25  val vs TWAP    -0.83 bps  (best -0.83 @ 2) eps 0.74    30s
+  ddqn          seed 2 epoch  3/12  train    +1.77  val vs TWAP    -0.30 bps  (best -0.83 @ 2) eps 0.60    45s
+  ddqn          seed 2 epoch  4/12  train    +4.22  val vs TWAP    -2.03 bps  (best -2.03 @ 4) eps 0.47    60s
+  ddqn          seed 2 epoch  5/12  train    +3.33  val vs TWAP    -6.66 bps  (best -6.66 @ 5) eps 0.34    75s
+  ddqn          seed 2 epoch  6/12  train    +0.57  val vs TWAP    -3.76 bps  (best -6.66 @ 5) eps 0.21    90s
+  ddqn          seed 2 epoch  7/12  train   +14.85  val vs TWAP    +0.11 bps  (best -6.66 @ 5) eps 0.08   105s
+  ddqn          seed 2 epoch  8/12  train    +1.21  val vs TWAP    -3.59 bps  (best -6.66 @ 5) eps 0.05   120s
+  ddqn          seed 2 epoch  9/12  train    -5.55  val vs TWAP    +0.83 bps  (best -6.66 @ 5) eps 0.05   135s
+  ddqn          seed 2 epoch 10/12  train    +8.88  val vs TWAP    +2.36 bps  (best -6.66 @ 5) eps 0.05   150s
+  ddqn          seed 2 epoch 11/12  train    -3.92  val vs TWAP    -1.03 bps  (best -6.66 @ 5) eps 0.05   165s
+  ddqn          seed 2 epoch 12/12  train    -2.31  val vs TWAP    +0.89 bps  (best -6.66 @ 5) eps 0.05   180s
+  dueling_ddqn  seed 0 epoch  1/12  train    -1.33  val vs TWAP    +0.08 bps  (best +0.08 @ 1) eps 0.87    18s
+  dueling_ddqn  seed 0 epoch  2/12  train    -2.86  val vs TWAP    -0.34 bps  (best -0.34 @ 2) eps 0.74    37s
+  dueling_ddqn  seed 0 epoch  3/12  train    -1.46  val vs TWAP    -1.04 bps  (best -1.04 @ 3) eps 0.60    55s
+  dueling_ddqn  seed 0 epoch  4/12  train    +6.84  val vs TWAP    +1.38 bps  (best -1.04 @ 3) eps 0.47    74s
+  dueling_ddqn  seed 0 epoch  5/12  train    -1.92  val vs TWAP    +1.45 bps  (best -1.04 @ 3) eps 0.34    92s
+  dueling_ddqn  seed 0 epoch  6/12  train    +6.44  val vs TWAP    +3.10 bps  (best -1.04 @ 3) eps 0.21   111s
+  dueling_ddqn  seed 0 epoch  7/12  train    +4.84  val vs TWAP    +4.67 bps  (best -1.04 @ 3) eps 0.08   130s
+  dueling_ddqn  seed 0 epoch  8/12  train    +6.42  val vs TWAP    +2.17 bps  (best -1.04 @ 3) eps 0.05   148s
+  dueling_ddqn  seed 0 epoch  9/12  train    +6.75  val vs TWAP    +3.05 bps  (best -1.04 @ 3) eps 0.05   167s
+  dueling_ddqn  seed 0 epoch 10/12  train    -2.66  val vs TWAP    +1.99 bps  (best -1.04 @ 3) eps 0.05   185s
+  dueling_ddqn  seed 0 epoch 11/12  train    -1.11  val vs TWAP    +1.73 bps  (best -1.04 @ 3) eps 0.05   204s
+  dueling_ddqn  seed 0 epoch 12/12  train    +0.42  val vs TWAP    -0.67 bps  (best -1.04 @ 3) eps 0.05   222s
+  dueling_ddqn  seed 1 epoch  1/12  train    +0.70  val vs TWAP    +2.21 bps  (best +2.21 @ 1) eps 0.87    18s
+  dueling_ddqn  seed 1 epoch  2/12  train    +1.20  val vs TWAP    +0.62 bps  (best +0.62 @ 2) eps 0.74    37s
+  dueling_ddqn  seed 1 epoch  3/12  train    -2.19  val vs TWAP    -1.08 bps  (best -1.08 @ 3) eps 0.60    55s
+  dueling_ddqn  seed 1 epoch  4/12  train    +0.55  val vs TWAP    -1.32 bps  (best -1.32 @ 4) eps 0.47    74s
+  dueling_ddqn  seed 1 epoch  5/12  train    +2.12  val vs TWAP    -2.93 bps  (best -2.93 @ 5) eps 0.34    92s
+  dueling_ddqn  seed 1 epoch  6/12  train    +2.09  val vs TWAP    -6.08 bps  (best -6.08 @ 6) eps 0.21   111s
+  dueling_ddqn  seed 1 epoch  7/12  train    +1.27  val vs TWAP    -0.94 bps  (best -6.08 @ 6) eps 0.08   129s
+  dueling_ddqn  seed 1 epoch  8/12  train    -0.79  val vs TWAP    -0.32 bps  (best -6.08 @ 6) eps 0.05   148s
+  dueling_ddqn  seed 1 epoch  9/12  train    +0.69  val vs TWAP    -0.06 bps  (best -6.08 @ 6) eps 0.05   166s
+  dueling_ddqn  seed 1 epoch 10/12  train    -1.55  val vs TWAP    +1.08 bps  (best -6.08 @ 6) eps 0.05   185s
+  dueling_ddqn  seed 1 epoch 11/12  train    -2.22  val vs TWAP    +3.06 bps  (best -6.08 @ 6) eps 0.05   204s
+  dueling_ddqn  seed 1 epoch 12/12  train    -1.15  val vs TWAP    -0.26 bps  (best -6.08 @ 6) eps 0.05   222s
+  dueling_ddqn  seed 2 epoch  1/12  train    +0.10  val vs TWAP    -0.34 bps  (best -0.34 @ 1) eps 0.87    18s
+  dueling_ddqn  seed 2 epoch  2/12  train    +1.32  val vs TWAP    -0.99 bps  (best -0.99 @ 2) eps 0.74    37s
+  dueling_ddqn  seed 2 epoch  3/12  train    -2.57  val vs TWAP    +1.72 bps  (best -0.99 @ 2) eps 0.60    55s
+  dueling_ddqn  seed 2 epoch  4/12  train    -2.57  val vs TWAP    +7.21 bps  (best -0.99 @ 2) eps 0.47    74s
+  dueling_ddqn  seed 2 epoch  5/12  train    +4.65  val vs TWAP    +5.35 bps  (best -0.99 @ 2) eps 0.34    92s
+  dueling_ddqn  seed 2 epoch  6/12  train    -1.17  val vs TWAP    +1.23 bps  (best -0.99 @ 2) eps 0.21   111s
+  dueling_ddqn  seed 2 epoch  7/12  train   +10.31  val vs TWAP    +5.29 bps  (best -0.99 @ 2) eps 0.08   129s
+  dueling_ddqn  seed 2 epoch  8/12  train    -0.47  val vs TWAP    -1.49 bps  (best -1.49 @ 8) eps 0.05   148s
+  dueling_ddqn  seed 2 epoch  9/12  train    -2.21  val vs TWAP    +2.85 bps  (best -1.49 @ 8) eps 0.05   166s
+  dueling_ddqn  seed 2 epoch 10/12  train    -2.52  val vs TWAP    +3.47 bps  (best -1.49 @ 8) eps 0.05   185s
+  dueling_ddqn  seed 2 epoch 11/12  train    +8.06  val vs TWAP    +1.69 bps  (best -1.49 @ 8) eps 0.05   203s
+  dueling_ddqn  seed 2 epoch 12/12  train    -2.30  val vs TWAP    +0.04 bps  (best -1.49 @ 8) eps 0.05   222s
+  ppo           seed 0 epoch  1/12  train    +1.45  val vs TWAP    -0.16 bps  (best -0.16 @ 1)     10s
+  ppo           seed 0 epoch  2/12  train    -0.29  val vs TWAP    +1.42 bps  (best -0.16 @ 1)     20s
+  ppo           seed 0 epoch  3/12  train    +4.28  val vs TWAP    -0.68 bps  (best -0.68 @ 3)     30s
+  ppo           seed 0 epoch  4/12  train    +3.44  val vs TWAP    +1.10 bps  (best -0.68 @ 3)     40s
+  ppo           seed 0 epoch  5/12  train    +2.64  val vs TWAP    -3.41 bps  (best -3.41 @ 5)     50s
+  ppo           seed 0 epoch  6/12  train    -0.80  val vs TWAP    +1.02 bps  (best -3.41 @ 5)     60s
+  ppo           seed 0 epoch  7/12  train    +0.71  val vs TWAP    -2.60 bps  (best -3.41 @ 5)     70s
+  ppo           seed 0 epoch  8/12  train    -0.29  val vs TWAP    -2.15 bps  (best -3.41 @ 5)     80s
+  ppo           seed 0 epoch  9/12  train    -0.57  val vs TWAP    +0.04 bps  (best -3.41 @ 5)     91s
+  ppo           seed 0 epoch 10/12  train    -0.66  val vs TWAP    -0.18 bps  (best -3.41 @ 5)    101s
+  ppo           seed 0 epoch 11/12  train    -0.97  val vs TWAP    +2.06 bps  (best -3.41 @ 5)    111s
+  ppo           seed 0 epoch 12/12  train    +2.47  val vs TWAP    +0.28 bps  (best -3.41 @ 5)    121s
+  ppo           seed 1 epoch  1/12  train    +5.97  val vs TWAP    +7.13 bps  (best +7.13 @ 1)     10s
+  ppo           seed 1 epoch  2/12  train    +3.43  val vs TWAP    +2.53 bps  (best +2.53 @ 2)     20s
+  ppo           seed 1 epoch  3/12  train    +6.92  val vs TWAP    +0.13 bps  (best +0.13 @ 3)     30s
+  ppo           seed 1 epoch  4/12  train    +0.14  val vs TWAP    +0.15 bps  (best +0.13 @ 3)     40s
+  ppo           seed 1 epoch  5/12  train    -0.31  val vs TWAP    +1.78 bps  (best +0.13 @ 3)     50s
+  ppo           seed 1 epoch  6/12  train    +0.16  val vs TWAP    +0.71 bps  (best +0.13 @ 3)     60s
+  ppo           seed 1 epoch  7/12  train    +1.99  val vs TWAP    +0.34 bps  (best +0.13 @ 3)     70s
+  ppo           seed 1 epoch  8/12  train    +2.69  val vs TWAP    -1.98 bps  (best -1.98 @ 8)     80s
+  ppo           seed 1 epoch  9/12  train    +0.65  val vs TWAP    +1.03 bps  (best -1.98 @ 8)     90s
+  ppo           seed 1 epoch 10/12  train    +0.66  val vs TWAP    +0.14 bps  (best -1.98 @ 8)    100s
+  ppo           seed 1 epoch 11/12  train    +1.54  val vs TWAP    -0.01 bps  (best -1.98 @ 8)    110s
+  ppo           seed 1 epoch 12/12  train    -0.37  val vs TWAP    +1.89 bps  (best -1.98 @ 8)    120s
+  ppo           seed 2 epoch  1/12  train    +0.50  val vs TWAP    -0.00 bps  (best -0.00 @ 1)     10s
+  ppo           seed 2 epoch  2/12  train    -0.78  val vs TWAP    +3.19 bps  (best -0.00 @ 1)     20s
+  ppo           seed 2 epoch  3/12  train    +1.06  val vs TWAP    +2.32 bps  (best -0.00 @ 1)     30s
+  ppo           seed 2 epoch  4/12  train    -0.89  val vs TWAP    -0.93 bps  (best -0.93 @ 4)     40s
+  ppo           seed 2 epoch  5/12  train    -0.58  val vs TWAP    +1.90 bps  (best -0.93 @ 4)     50s
+  ppo           seed 2 epoch  6/12  train    -1.23  val vs TWAP    +2.99 bps  (best -0.93 @ 4)     60s
+  ppo           seed 2 epoch  7/12  train    -2.46  val vs TWAP    +2.28 bps  (best -0.93 @ 4)     70s
+  ppo           seed 2 epoch  8/12  train    -0.77  val vs TWAP    +1.17 bps  (best -0.93 @ 4)     80s
+  ppo           seed 2 epoch  9/12  train    -0.94  val vs TWAP    +0.04 bps  (best -0.93 @ 4)     90s
+  ppo           seed 2 epoch 10/12  train    -0.62  val vs TWAP    -1.42 bps  (best -1.42 @ 10)    100s
+  ppo           seed 2 epoch 11/12  train    +0.17  val vs TWAP    +2.06 bps  (best -1.42 @ 10)    110s
+  ppo           seed 2 epoch 12/12  train    -1.35  val vs TWAP    +2.78 bps  (best -1.42 @ 10)    120s
 
 Shortfall vs arrival price on 'val', bps (lower is better; vs_twap < 0 beats TWAP):
                    shortfall_bps  vs_twap  ci_low  ci_high  timing  fees  spread  temp_impact  perm_impact  forced_pct  n_days
@@ -197,8 +197,15 @@ buy_at_start                1.88    11.53   -8.04    32.90   -4.14  1.00    0.50
 Per-seed mean vs TWAP on 'val' (and at the final epoch on validation, which involves no selection):
   DQN                  -2.90, -3.98, -4.82   | final epoch: mean -0.91
   Double DQN           -4.16, -2.38, -6.66   | final epoch: mean +0.53
-  Dueling Double DQN   -1.04, -6.08, -1.49   | final epoch: mean +0.96
+  Dueling Double DQN   -1.04, -6.08, -1.49   | final epoch: mean -0.29
   PPO                  -3.41, -1.98, -1.42   | final epoch: mean +1.65
+
+Overfitting check, mean of seeds, bps vs TWAP (a large gap = the agents memorised training days):
+                        training days       val days      gap
+  DQN                           +3.18          -3.90    -7.08
+  Double DQN                    +7.54          -4.40   -11.95
+  Dueling Double DQN            +1.17          -2.87    -4.04
+  PPO                           +0.45          -2.27    -2.72
 Note: validation was used to pick each agent's best epoch, so the agents' validation figures are optimistic. The test split (--reveal-test) is the unbiased check; use it once, at the end.
 
 wrote docs/data/demo.json  (open it in the viewer with 'Open a results file')
