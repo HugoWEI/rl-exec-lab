@@ -116,6 +116,42 @@ def _vol_ratio(g):
     return (short / g["sigma"]).where(g["sigma"] > 0, 1.0)
 
 
+FFT_WINDOW = 64
+
+
+def _fft(g) -> pd.DataFrame:
+    """Fourier features of the last FFT_WINDOW log prices (window ends at the current open, so it
+    only uses known prices). Each window has its straight-line trend removed first."""
+    if "_fft" in g.attrs:
+        return g.attrs["_fft"]
+    from numpy.lib.stride_tricks import sliding_window_view
+    n, w = len(g), FFT_WINDOW
+    out = pd.DataFrame(np.nan, index=g.index, columns=["low", "high", "cycle", "smooth_dev"])
+    if n >= w:
+        win = sliding_window_view(np.log(g["open"].to_numpy()), w)
+        tc = np.arange(w) - (w - 1) / 2
+        slope = (win * tc).sum(1, keepdims=True) / (tc**2).sum()
+        d = win - win.mean(1, keepdims=True) - slope * tc          # detrended window
+        spec = np.fft.rfft(d, axis=1)
+        power = np.abs(spec) ** 2
+        power[:, 0] = 0.0
+        total = power.sum(1)
+        ok = total > 0
+        safe = np.where(ok, total, 1.0)
+        scale = np.where(ok, d.std(1), 1.0)
+        at_end = np.exp(2j * np.pi * np.arange(spec.shape[1]) * (w - 1) / w)  # evaluates each wave at the last point
+        k = power[:, 1:9].argmax(1) + 1                                        # dominant slow wave (period 8 to 64 steps)
+        rows = np.arange(len(win))
+        cycle = (2.0 / w) * np.real(spec[rows, k] * at_end[k])
+        smooth = (2.0 / w) * np.real(spec[:, 1:4] * at_end[1:4]).sum(1)        # slow part (periods over 16 steps)
+        vals = np.column_stack([power[:, 1:4].sum(1) / safe, power[:, 16:].sum(1) / safe,
+                                cycle / scale, (d[:, -1] - smooth) / scale])
+        vals[~ok] = 0.0
+        out.iloc[w - 1:] = vals
+    g.attrs["_fft"] = out
+    return out
+
+
 FEATURES: dict[str, tuple[str, callable]] = {
     "ret_1": ("log return over the last step", _ret(1)),
     "ret_3": ("log return over the last 3 steps", _ret(3)),
@@ -131,6 +167,13 @@ FEATURES: dict[str, tuple[str, callable]] = {
     "vol_ratio": ("short-term volatility (12 steps) / rolling volatility", _vol_ratio),
     "range_pos": ("position of the price within the day's range so far (0 = low, 1 = high)", _range_pos),
     "vwap_dev": ("log(current price / day's VWAP so far)", _vwap_dev),
+    "fft_low_power": ("share of recent price variation in slow waves (periods over 16 steps), from a Fourier transform of the last 64 prices",
+                      lambda g: _fft(g)["low"]),
+    "fft_high_power": ("share of recent price variation in fast waves (periods under 4 steps)", lambda g: _fft(g)["high"]),
+    "fft_cycle": ("where the price sits in its dominant slow wave (positive = above the wave's middle)",
+                  lambda g: _fft(g)["cycle"]),
+    "fft_smooth_dev": ("current price minus its Fourier-smoothed path (positive = above the smooth path)",
+                       lambda g: _fft(g)["smooth_dev"]),
     "tod_sin": ("time of day, sine", lambda g: np.sin(2 * np.pi * (g.index.hour * 60 + g.index.minute) / 1440)),
     "tod_cos": ("time of day, cosine", lambda g: np.cos(2 * np.pi * (g.index.hour * 60 + g.index.minute) / 1440)),
 }

@@ -53,6 +53,22 @@
    "description": "log(current price / day's VWAP so far)"
   },
   {
+   "name": "fft_low_power",
+   "description": "share of recent price variation in slow waves (periods over 16 steps), from a Fourier transform of the last 64 prices"
+  },
+  {
+   "name": "fft_high_power",
+   "description": "share of recent price variation in fast waves (periods under 4 steps)"
+  },
+  {
+   "name": "fft_cycle",
+   "description": "where the price sits in its dominant slow wave (positive = above the wave's middle)"
+  },
+  {
+   "name": "fft_smooth_dev",
+   "description": "current price minus its Fourier-smoothed path (positive = above the smooth path)"
+  },
+  {
    "name": "tod_sin",
    "description": "time of day, sine"
   },

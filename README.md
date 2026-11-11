@@ -28,6 +28,10 @@ Without a config, `python scripts/train.py` uses `configs/default.yaml`. Quick c
     python scripts/train.py --synthetic --midday-dip-bps 150 --seeds 2 --epochs 5   # agents learn a planted pattern
     python scripts/run_baselines.py --synthetic                                      # baselines only
 
+To look at the inputs before training, `python scripts/analyze_features.py --export docs/data/features.json`
+reports each feature's distribution, the correlations between features, and whether any feature
+predicts later price moves (training days only). The page's **Features** tab shows it.
+
 The same run can be started on GitHub from the Actions tab ("train"); it publishes the results as
 the page's default view.
 
@@ -44,7 +48,8 @@ the page's default view.
   model (an exact bound when permanent impact is off).
 - **State features** (`rlexec/data.py`, `FEATURES`): returns over several horizons, volatility,
   relative volume, taker buy/sell imbalance, position in the day's range, deviation from the day's
-  VWAP, time of day. Time remaining and inventory remaining are always included.
+  VWAP, Fourier features of the last 64 prices (slow/fast wave power, position in the dominant
+  wave, deviation from the smoothed path), time of day. Time remaining and inventory remaining are always included.
 - **Agents** (`rlexec/agents.py`): DQN, Double DQN, Dueling Double DQN and PPO, all small MLPs.
   Actions are multiples of the TWAP rate (1 = TWAP). Training uses a reward measured relative to
   TWAP's inventory path, which has the same optimum as the shortfall with much less noise.
@@ -65,7 +70,7 @@ the page's default view.
     rlexec/evaluate.py   per-day results and bootstrap summary
     rlexec/export.py     results file for the web page
     rlexec/config.py     config loading and command-line options
-    scripts/             train.py, run_baselines.py, download_binance.py, export_schema.py
+    scripts/             train.py, run_baselines.py, analyze_features.py, download_binance.py, export_schema.py
     docs/                the web page (GitHub Pages)
 
 After adding a feature or a method, run `python scripts/export_schema.py` so the page's run builder

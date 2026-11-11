@@ -1,0 +1,43 @@
+name: features
+
+# Analyses the state features on the training split of Binance data (distributions, correlations,
+# predictive power) and publishes the result to the page's Features tab.
+on:
+  workflow_dispatch:
+    inputs:
+      symbol: {description: "Binance spot symbol", default: "BTCUSDT"}
+      start: {description: "First month (YYYY-MM)", default: "2023-01"}
+      end: {description: "Last month (YYYY-MM)", default: "2024-12"}
+  push:
+    branches: [main]
+    paths: [".github/workflows/features.yml"]
+
+permissions:
+  contents: write
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    env:
+      SYMBOL: ${{ inputs.symbol || 'BTCUSDT' }}
+      START: ${{ inputs.start || '2023-01' }}
+      END: ${{ inputs.end || '2024-12' }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install numpy pandas pyyaml
+      - name: Analyse features (training split only)
+        run: |
+          mkdir -p results
+          python scripts/analyze_features.py --symbol "$SYMBOL" --start "$START" --end "$END" \
+            --export docs/data/features.json | tee results/features.txt
+      - name: Publish
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add docs/data/features.json results/features.txt
+          git commit -m "Update feature analysis (${SYMBOL} ${START} to ${END})" || echo "no changes"
+          git pull --rebase origin main
+          git push

@@ -11,7 +11,7 @@
   --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #7b7a75; --neutral: #8a8984;
   --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
   --series-5: #e87ba4; --series-6: #008300; --series-7: #6250d6; --series-8: #e34948;
-  --on-bg: #e4f3ec; --on-fg: #0d6b49; --off-bg: #ecebe7; --off-fg: #6b6a65; --accent: #2a78d6;
+  --div-mid: #f0efec; --on-bg: #e4f3ec; --on-fg: #0d6b49; --off-bg: #ecebe7; --off-fg: #6b6a65; --accent: #2a78d6;
 }
 @media (prefers-color-scheme: dark) {
   :root {
@@ -20,7 +20,7 @@
     --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86; --neutral: #7d7c75;
     --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
     --series-5: #d55181; --series-6: #008300; --series-7: #9085e9; --series-8: #e66767;
-    --on-bg: #17332a; --on-fg: #7fd4b0; --off-bg: #2a2a28; --off-fg: #9a9991; --accent: #3987e5;
+    --div-mid: #383835; --on-bg: #17332a; --on-fg: #7fd4b0; --off-bg: #2a2a28; --off-fg: #9a9991; --accent: #3987e5;
   }
 }
 * { box-sizing: border-box; }
@@ -85,6 +85,12 @@ footer { color: var(--text-muted); font-size: 13px; margin-top: 20px; }
 .costrow .name { width: 190px; } .costrow .name small { display: block; color: var(--text-muted); }
 .costrow.off .field { opacity: .45; }
 .steps { margin: 10px 0 0; padding-left: 20px; } .steps li { margin-bottom: 8px; }
+.heat td { padding: 5px 10px; border-bottom: 2px solid var(--surface-1); border-right: 2px solid var(--surface-1); }
+.heat td.cell { color: var(--text-primary); border-radius: 4px; cursor: default; }
+.heat td.cell.sig { font-weight: 700; }
+.smalls { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 14px 18px; margin-top: 10px; }
+.small .nm { font: 13px ui-monospace, Menlo, monospace; color: var(--text-primary); }
+.small .st { font-size: 12px; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 [hidden] { display: none !important; }
 </style>
 </head>
@@ -102,9 +108,11 @@ footer { color: var(--text-muted); font-size: 13px; margin-top: 20px; }
   </header>
   <nav role="tablist">
     <button role="tab" id="tab-results" aria-selected="true">Results</button>
+    <button role="tab" id="tab-features" aria-selected="false">Features</button>
     <button role="tab" id="tab-new" aria-selected="false">New run</button>
   </nav>
   <div id="results"></div>
+  <div id="features" hidden></div>
   <div id="builder" hidden></div>
   <footer>Task: buy a fixed quantity within one day. Shortfall is the all-in average price paid relative to the day's first price, in basis points; lower is better. Source and instructions: <a href="https://github.com/HugoWEI/rl-exec-lab" style="color:inherit">github.com/HugoWEI/rl-exec-lab</a>.</footer>
 </main>
@@ -566,16 +574,78 @@ function updateBuilder() {
   $("b-yaml").textContent = toYaml(c);
 }
 
+// ---------- features view ---------------------------------------------------------------------
+// Diverging scale: blue = positive, red = negative, neutral grey at zero.
+const div = v => `color-mix(in oklab, var(--series-${v >= 0 ? 1 : 8}) ${Math.round(Math.min(1, Math.abs(v)) * 70)}%, var(--div-mid))`;
+function renderFeatures(d) {
+  const m = d.meta, T = d.targets, names = d.features.map(f => f.name);
+  const strength = n => Math.max(...T.map(t => Math.abs(d.ic[n][t.key].t || 0)));
+  const order = [...names].sort((a, b) => strength(b) - strength(a));
+  const nSig = names.filter(n => strength(n) > m.t_crit).length;
+  const num = (x, k = 3) => (x == null ? "–" : Math.abs(x) >= 1000 || (Math.abs(x) < 0.001 && x !== 0) ? x.toExponential(1) : x.toFixed(k));
+  $("features").innerHTML = `
+    <p class="hint" style="font-size:14px">${esc(m.label)} · training days only (${m.n_days} days, ${m.first_day} to ${m.last_day}; ${m.n_obs.toLocaleString("en-US")} observations at ${m.step_minutes}-minute steps), so nothing here leaks into validation or test.</p>
+    <section class="card">
+      <h2>Does any feature say where the price goes next?</h2>
+      <p class="hint">Each cell is the rank correlation × 100 between a feature now and the price move over that horizon, pooled over all training days. Blue = the price tends to rise afterwards when the feature is high, red = it tends to fall. Bold with a star marks cells whose t-statistic passes ${m.t_crit.toFixed(2)}, the 5% bar after correcting for ${m.n_tests} tests (whole days are the independent units). The last column is the rest-of-day move when the feature is in its top 20% minus its bottom 20%, in bps. ${nSig ? `${nSig} of ${names.length} features pass the bar on at least one horizon.` : `No feature passes the bar on any horizon.`}</p>
+      <div class="tablewrap"><table class="heat">
+        <thead><tr><th>Feature</th>${T.map(t => `<th>${esc(t.label.replace(/ \(.*/, ""))}</th>`).join("")}<th>Top − bottom 20% (bps)</th></tr></thead>
+        <tbody>${order.map(n => `<tr><td><code>${n}</code></td>${T.map(t => { const c = d.ic[n][t.key], sig = Math.abs(c.t) > m.t_crit;
+          return `<td class="cell${sig ? " sig" : ""}" style="background:${div((c.t || 0) / 8)}" data-tip="${esc(`<div class="t">${n} → ${t.label}</div><div class="r"><span>Correlation × 100</span><b>${sgn(100 * c.ic)}</b></div><div class="r"><span>t-statistic</span><span>${sgn(c.t)}</span></div><div class="r"><span>First half of days</span><span>${sgn(100 * c.first_half)}</span></div><div class="r"><span>Second half of days</span><span>${sgn(100 * c.second_half)}</span></div>`)}">${sgn(100 * c.ic)}${sig ? " ★" : ""}</td>`; }).join("")}
+          <td class="cell" style="background:${div((d.spread[n].t || 0) / 8)}" data-tip="${esc(`<div class="t">${n}: top 20% minus bottom 20%</div><div class="r"><span>Rest-of-day move</span><b>${sgn(d.spread[n].bps)} bps</b></div><div class="r"><span>t-statistic</span><span>${sgn(d.spread[n].t)}</span></div>`)}">${sgn(d.spread[n].bps)}</td></tr>`).join("")}</tbody>
+      </table></div>
+    </section>
+    <section class="card">
+      <h2>How similar are the features to each other?</h2>
+      <p class="hint">Rank correlation between every pair of features. Dark blue or dark red pairs carry nearly the same information, so keeping both adds little.</p>
+      <div id="c-corr"></div>
+    </section>
+    <section class="card">
+      <h2>Distributions</h2>
+      <p class="hint">Histogram of each feature between its 0.5th and 99.5th percentiles. Skew measures asymmetry; excess kurtosis above 0 means heavier tails than a normal distribution.</p>
+      <div class="smalls">${d.features.map((f, i) => `<div class="small"><div class="nm" title="${esc(f.description)}">${f.name}</div><div id="h-${i}"></div><div class="st">mean ${num(f.mean)} · sd ${num(f.std)}<br>skew ${num(f.skew, 2)} · kurtosis ${num(f.excess_kurtosis, 1)}</div></div>`).join("")}</div>
+    </section>`;
+  $("features").querySelectorAll("[data-tip]").forEach(td => { td.onmousemove = e => showTip(e, td.dataset.tip); td.onmouseleave = hideTip; });
+  // correlation heatmap
+  const cn = d.corr.names, F = cn.length, cell = 30, L = 130, Tp = 110, W = L + F * cell + 10, H = Tp + F * cell + 6;
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Correlation between features", style: `max-width:${W}px` });
+  cn.forEach((n, i) => {
+    svgEl("text", { x: L - 8, y: Tp + i * cell + cell / 2 + 4, "text-anchor": "end", text: n }, svg);
+    svgEl("text", { x: 0, y: 0, transform: `translate(${L + i * cell + cell / 2 + 4} ${Tp - 8}) rotate(-60)`, text: n }, svg);
+    cn.forEach((n2, j) => {
+      const v = d.corr.matrix[i][j];
+      const r = svgEl("rect", { x: L + j * cell + 1, y: Tp + i * cell + 1, width: cell - 2, height: cell - 2, rx: 3, fill: div(v / 0.9) }, svg);
+      r.onmousemove = e => showTip(e, `<div class="t">${n} × ${n2}</div><div class="r"><span>Rank correlation</span><b>${sgn(v)}</b></div>`);
+      r.onmouseleave = hideTip;
+    });
+  });
+  $("c-corr").replaceChildren(svg);
+  // histograms
+  d.features.forEach((f, i) => {
+    const c = f.hist.counts, mx = Math.max(...c, 1), w = 230, h = 64, bw = w / c.length;
+    const hs = svgEl("svg", { viewBox: `0 0 ${w} ${h + 14}`, role: "img", "aria-label": `Histogram of ${f.name}` });
+    c.forEach((v, k) => { if (v) svgEl("rect", { x: k * bw + 0.5, y: h - v / mx * h, width: Math.max(1, bw - 1), height: v / mx * h, fill: "var(--series-1)" }, hs); });
+    svgEl("line", { x1: 0, x2: w, y1: h + 0.5, y2: h + 0.5, stroke: "var(--border)" }, hs);
+    svgEl("text", { x: 0, y: h + 12, text: num(f.hist.lo) }, hs);
+    svgEl("text", { x: w, y: h + 12, "text-anchor": "end", text: num(f.hist.hi) }, hs);
+    const hit = svgEl("rect", { x: 0, y: 0, width: w, height: h, fill: "transparent" }, hs);
+    hit.onmousemove = e => { const box = hs.getBoundingClientRect(), k = Math.max(0, Math.min(c.length - 1, Math.floor((e.clientX - box.left) / box.width * c.length)));
+      const a = f.hist.lo + k * (f.hist.hi - f.hist.lo) / c.length, b2 = a + (f.hist.hi - f.hist.lo) / c.length;
+      showTip(e, `<div class="t">${f.name}</div><div class="r"><span>${num(a)} to ${num(b2)}</span><b>${(100 * c[k] / m.n_obs).toFixed(1)}%</b></div>`); };
+    hit.onmouseleave = hideTip;
+    $(`h-${i}`).replaceChildren(hs);
+  });
+}
+
 // ---------- tabs, loading ---------------------------------------------------------------------
+const TABS = { results: "results", features: "features", new: "builder" };
 function showTab(name) {
-  const isNew = name === "new";
-  $("results").hidden = isNew; $("builder").hidden = !isNew;
-  $("tab-results").setAttribute("aria-selected", !isNew); $("tab-new").setAttribute("aria-selected", isNew);
-  history.replaceState(null, "", location.pathname + location.search + (isNew ? "#new" : ""));
+  if (!TABS[name]) name = "results";
+  for (const [t, id] of Object.entries(TABS)) { $(id).hidden = t !== name; $("tab-" + t).setAttribute("aria-selected", t === name); }
+  history.replaceState(null, "", location.pathname + location.search + (name === "results" ? "" : "#" + name));
   scrollTo(0, 0);
 }
-$("tab-results").onclick = () => showTab("results");
-$("tab-new").onclick = () => showTab("new");
+for (const t of Object.keys(TABS)) $("tab-" + t).onclick = () => showTab(t);
 function fail(msg) {
   $("subtitle").textContent = "No results loaded";
   $("results").innerHTML = `<div class="note">${esc(msg)}</div>`;
@@ -591,6 +661,9 @@ const getJson = u => fetch(u).then(r => { if (!r.ok) throw new Error(r.status); 
 getJson("data/schema.json").then(s => { SCHEMA = s; buildBuilder(); })
   .catch(() => ($("builder").innerHTML = `<div class="note">Could not load the run builder's settings (data/schema.json).</div>`))
   .finally(() => { if (location.hash === "#new") showTab("new"); });
+getJson("data/features.json").then(renderFeatures)
+  .catch(() => ($("features").innerHTML = `<div class="note">No feature analysis has been published yet. Create one with <code>python scripts/analyze_features.py --export docs/data/features.json</code>.</div>`))
+  .finally(() => { if (location.hash === "#features") showTab("features"); });
 getJson(src).then(render).catch(() => fail("Could not load " + src + ". Use “Open a results file…” to view a local results JSON."));
 </script>
 </body>
