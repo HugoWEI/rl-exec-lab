@@ -1,0 +1,87 @@
+Cost model - each cost is a fraction of the fill price, charged per child order.
+sigma = rolling std of step log-returns; V = rolling mean step volume (both use past bars only).
+  [ON ] fees         : 1 bps of notional
+  [ON ] spread       : fixed half-spread = 0.5 bps
+  [ON ] temp impact  : eta * sigma * (q/V)^delta, eta=1, delta=0.5  (eta is an assumption, not calibrated)
+  [OFF] perm impact  : later prices shift by gamma * (qty already bought / prev-day volume), gamma=0.05  (counterfactual: history never saw these trades)
+  [ON ] particip. cap: q <= 10% of V; waived on the final step (forced completion, reported as forced_pct)
+  Worked example: sigma=5 bps, q/V=5% -> fees 1.00 + spread 0.50 + temp impact 1.12 = 2.62 bps per unit bought 
+
+days: train=1077, val=358, test=359  -> reporting 'val'
+training 5 seeds x 12 epochs on cpu; state = ['ret_1', 'ret_3', 'ret_12', 'ret_48', 'vol', 'rel_volume', 'range', 'price_vs_arrival', 'flow_1', 'flow_12', 'vol_ratio', 'range_pos', 'vwap_dev', 'tod_sin', 'tod_cos', 'time_remaining', 'inventory_remaining']; actions = {'mode': 'twap_multiple', 'grid': [0.0, 0.5, 1.0, 2.0, 4.0]}
+
+  seed 0 epoch  1/12  val vs TWAP    +3.62 bps  (best +3.62 @ 1)  eps 0.87     49s
+  seed 0 epoch  2/12  val vs TWAP    +7.70 bps  (best +3.62 @ 1)  eps 0.74     98s
+  seed 0 epoch  3/12  val vs TWAP   +36.94 bps  (best +3.62 @ 1)  eps 0.60    147s
+  seed 0 epoch  4/12  val vs TWAP    +2.58 bps  (best +2.58 @ 4)  eps 0.47    197s
+  seed 0 epoch  5/12  val vs TWAP    +1.61 bps  (best +1.61 @ 5)  eps 0.34    246s
+  seed 0 epoch  6/12  val vs TWAP    +5.26 bps  (best +1.61 @ 5)  eps 0.21    295s
+  seed 0 epoch  7/12  val vs TWAP    -0.63 bps  (best -0.63 @ 7)  eps 0.08    345s
+  seed 0 epoch  8/12  val vs TWAP    +3.52 bps  (best -0.63 @ 7)  eps 0.05    394s
+  seed 0 epoch  9/12  val vs TWAP    -0.31 bps  (best -0.63 @ 7)  eps 0.05    444s
+  seed 0 epoch 10/12  val vs TWAP    -3.01 bps  (best -3.01 @ 10)  eps 0.05    493s
+  seed 0 epoch 11/12  val vs TWAP    +2.93 bps  (best -3.01 @ 10)  eps 0.05    542s
+  seed 0 epoch 12/12  val vs TWAP    -0.61 bps  (best -3.01 @ 10)  eps 0.05    592s
+  seed 1 epoch  1/12  val vs TWAP    +8.43 bps  (best +8.43 @ 1)  eps 0.87     49s
+  seed 1 epoch  2/12  val vs TWAP    +8.46 bps  (best +8.43 @ 1)  eps 0.74     99s
+  seed 1 epoch  3/12  val vs TWAP    +3.50 bps  (best +3.50 @ 3)  eps 0.60    148s
+  seed 1 epoch  4/12  val vs TWAP    +4.02 bps  (best +3.50 @ 3)  eps 0.47    197s
+  seed 1 epoch  5/12  val vs TWAP    +3.84 bps  (best +3.50 @ 3)  eps 0.34    247s
+  seed 1 epoch  6/12  val vs TWAP    -0.49 bps  (best -0.49 @ 6)  eps 0.21    296s
+  seed 1 epoch  7/12  val vs TWAP    -0.04 bps  (best -0.49 @ 6)  eps 0.08    346s
+  seed 1 epoch  8/12  val vs TWAP    +6.75 bps  (best -0.49 @ 6)  eps 0.05    395s
+  seed 1 epoch  9/12  val vs TWAP    -3.15 bps  (best -3.15 @ 9)  eps 0.05    445s
+  seed 1 epoch 10/12  val vs TWAP    -1.77 bps  (best -3.15 @ 9)  eps 0.05    494s
+  seed 1 epoch 11/12  val vs TWAP   +29.09 bps  (best -3.15 @ 9)  eps 0.05    544s
+  seed 1 epoch 12/12  val vs TWAP    +1.74 bps  (best -3.15 @ 9)  eps 0.05    593s
+  seed 2 epoch  1/12  val vs TWAP    +2.07 bps  (best +2.07 @ 1)  eps 0.87     49s
+  seed 2 epoch  2/12  val vs TWAP   +36.70 bps  (best +2.07 @ 1)  eps 0.74     99s
+  seed 2 epoch  3/12  val vs TWAP   +31.15 bps  (best +2.07 @ 1)  eps 0.60    148s
+  seed 2 epoch  4/12  val vs TWAP   +17.82 bps  (best +2.07 @ 1)  eps 0.47    198s
+  seed 2 epoch  5/12  val vs TWAP    +1.55 bps  (best +1.55 @ 5)  eps 0.34    247s
+  seed 2 epoch  6/12  val vs TWAP    +4.27 bps  (best +1.55 @ 5)  eps 0.21    297s
+  seed 2 epoch  7/12  val vs TWAP    +6.24 bps  (best +1.55 @ 5)  eps 0.08    347s
+  seed 2 epoch  8/12  val vs TWAP    +3.83 bps  (best +1.55 @ 5)  eps 0.05    396s
+  seed 2 epoch  9/12  val vs TWAP    -2.25 bps  (best -2.25 @ 9)  eps 0.05    446s
+  seed 2 epoch 10/12  val vs TWAP    -0.96 bps  (best -2.25 @ 9)  eps 0.05    496s
+  seed 2 epoch 11/12  val vs TWAP    +4.61 bps  (best -2.25 @ 9)  eps 0.05    545s
+  seed 2 epoch 12/12  val vs TWAP    -3.13 bps  (best -3.13 @ 12)  eps 0.05    595s
+  seed 3 epoch  1/12  val vs TWAP    +2.44 bps  (best +2.44 @ 1)  eps 0.87     49s
+  seed 3 epoch  2/12  val vs TWAP    +0.29 bps  (best +0.29 @ 2)  eps 0.74     99s
+  seed 3 epoch  3/12  val vs TWAP    +7.24 bps  (best +0.29 @ 2)  eps 0.60    148s
+  seed 3 epoch  4/12  val vs TWAP   +11.25 bps  (best +0.29 @ 2)  eps 0.47    198s
+  seed 3 epoch  5/12  val vs TWAP   +14.16 bps  (best +0.29 @ 2)  eps 0.34    247s
+  seed 3 epoch  6/12  val vs TWAP   +13.06 bps  (best +0.29 @ 2)  eps 0.21    298s
+  seed 3 epoch  7/12  val vs TWAP    +5.50 bps  (best +0.29 @ 2)  eps 0.08    347s
+  seed 3 epoch  8/12  val vs TWAP    +1.48 bps  (best +0.29 @ 2)  eps 0.05    397s
+  seed 3 epoch  9/12  val vs TWAP    +0.12 bps  (best +0.12 @ 9)  eps 0.05    446s
+  seed 3 epoch 10/12  val vs TWAP    +8.56 bps  (best +0.12 @ 9)  eps 0.05    495s
+  seed 3 epoch 11/12  val vs TWAP    -0.15 bps  (best -0.15 @ 11)  eps 0.05    545s
+  seed 3 epoch 12/12  val vs TWAP    +0.72 bps  (best -0.15 @ 11)  eps 0.05    594s
+  seed 4 epoch  1/12  val vs TWAP    +1.87 bps  (best +1.87 @ 1)  eps 0.87     49s
+  seed 4 epoch  2/12  val vs TWAP   +20.20 bps  (best +1.87 @ 1)  eps 0.74     99s
+  seed 4 epoch  3/12  val vs TWAP    +0.10 bps  (best +0.10 @ 3)  eps 0.60    148s
+  seed 4 epoch  4/12  val vs TWAP    +9.71 bps  (best +0.10 @ 3)  eps 0.47    198s
+  seed 4 epoch  5/12  val vs TWAP    -0.91 bps  (best -0.91 @ 5)  eps 0.34    247s
+  seed 4 epoch  6/12  val vs TWAP    +9.79 bps  (best -0.91 @ 5)  eps 0.21    297s
+  seed 4 epoch  7/12  val vs TWAP    -1.21 bps  (best -1.21 @ 7)  eps 0.08    347s
+  seed 4 epoch  8/12  val vs TWAP    -1.16 bps  (best -1.21 @ 7)  eps 0.05    396s
+  seed 4 epoch  9/12  val vs TWAP    +0.97 bps  (best -1.21 @ 7)  eps 0.05    446s
+  seed 4 epoch 10/12  val vs TWAP    -3.50 bps  (best -3.50 @ 10)  eps 0.05    496s
+  seed 4 epoch 11/12  val vs TWAP    +9.59 bps  (best -3.50 @ 10)  eps 0.05    546s
+  seed 4 epoch 12/12  val vs TWAP    +0.86 bps  (best -3.50 @ 10)  eps 0.05    595s
+
+Shortfall vs arrival price on 'val', bps (lower is better; vs_twap < 0 beats TWAP):
+                   shortfall_bps  vs_twap  ci_low  ci_high  timing  fees  spread  temp_impact  perm_impact  forced_pct  n_days
+policy                                                                                                                        
+perfect_foresight         -91.77  -104.74 -114.48   -96.33  -97.24  0.99    0.50         3.98         0.00        0.00     358
+buy_at_start                8.55    -4.42  -14.72     5.39    3.20  1.00    0.50         3.85         0.00        0.00     358
+ddqn                       10.39    -2.59   -5.21    -0.10    7.46  1.00    0.50         1.42         0.00        0.00     358
+random                     10.60    -2.38   -5.06     0.24    7.55  1.00    0.50         1.54         0.00        0.00     358
+twap                       12.98     0.00    0.00     0.00   10.35  1.00    0.50         1.12         0.00        0.00     358
+buy_at_end                 34.52    21.54    7.38    35.96   27.92  1.00    0.50         5.09         0.00        0.13     358
+
+Per-seed mean vs TWAP: -3.01, -3.15, -3.13, -0.15, -3.50   (spread across seeds: std 1.38 bps)
+Note: validation was used to pick each agent's best epoch, so the DDQN's validation figure is optimistic. The test split (--reveal-test) is the unbiased check; use it once, at the end.
+
+wrote docs/data/demo.json
