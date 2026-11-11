@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
     inputs:
       symbol: {description: "Binance spot symbol", default: "BTCUSDT"}
-      start: {description: "First month (YYYY-MM)", default: "2023-01"}
+      start: {description: "First month (YYYY-MM)", default: "2020-01"}
       end: {description: "Last month (YYYY-MM)", default: "2024-12"}
       seeds: {description: "Number of agents to train", default: "5"}
       features: {description: "State features: comma-separated list, or 'all'", default: "all"}
@@ -23,7 +23,7 @@ jobs:
     timeout-minutes: 120
     env:
       SYMBOL: ${{ inputs.symbol || 'BTCUSDT' }}
-      START: ${{ inputs.start || '2023-01' }}
+      START: ${{ inputs.start || '2020-01' }}
       END: ${{ inputs.end || '2024-12' }}
       SEEDS: ${{ inputs.seeds || '5' }}
       FEATURES: ${{ inputs.features || 'all' }}
