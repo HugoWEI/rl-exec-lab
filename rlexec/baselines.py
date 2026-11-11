@@ -8,6 +8,8 @@ from .costs import CostModel
 
 class Policy:
     name = "policy"
+    label = "Policy"
+    kind = "baseline"    # "baseline" or "rl"
     uses_future = False  # True only for hindsight benchmarks
 
     def start(self, env):
@@ -20,6 +22,7 @@ class Policy:
 class BuyAtStart(Policy):
     """Buy everything immediately. With a participation cap this means buying at the cap until done."""
     name = "buy_at_start"
+    label = "Buy at start"
 
     def act(self, obs, env):
         return 1.0
@@ -29,6 +32,7 @@ class BuyAtEnd(Policy):
     """Wait as long as possible. With a cap, start as late as the cap allows (estimated from the
     current step's cap, so a small forced remainder is possible)."""
     name = "buy_at_end"
+    label = "Buy at end"
 
     def act(self, obs, env):
         steps_after = env.day.n - env.t - 1
@@ -40,6 +44,7 @@ class BuyAtEnd(Policy):
 class TWAP(Policy):
     """Equal quantity at every step."""
     name = "twap"
+    label = "TWAP"
 
     def act(self, obs, env):
         return 1.0 / (env.day.n - env.t)
@@ -48,6 +53,7 @@ class TWAP(Policy):
 class RandomPolicy(Policy):
     """Uniform random choice from the discrete action set. A reference for what luck looks like."""
     name = "random"
+    label = "Random"
 
     def __init__(self, seed: int = 0):
         self.rng = np.random.default_rng(seed)
@@ -64,6 +70,7 @@ class PerfectForesight(Policy):
     so it is an approximation rather than a strict bound.
     """
     name = "perfect_foresight"
+    label = "Perfect foresight"
     uses_future = True
 
     def start(self, env):

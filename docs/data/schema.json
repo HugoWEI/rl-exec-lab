@@ -1,0 +1,194 @@
+{
+ "features": [
+  {
+   "name": "ret_1",
+   "description": "log return over the last step"
+  },
+  {
+   "name": "ret_3",
+   "description": "log return over the last 3 steps"
+  },
+  {
+   "name": "ret_12",
+   "description": "log return over the last 12 steps"
+  },
+  {
+   "name": "ret_48",
+   "description": "log return over the last 48 steps"
+  },
+  {
+   "name": "vol",
+   "description": "rolling volatility of step returns (sigma)"
+  },
+  {
+   "name": "rel_volume",
+   "description": "last step's volume / rolling mean volume"
+  },
+  {
+   "name": "range",
+   "description": "rolling mean (high-low)/close"
+  },
+  {
+   "name": "price_vs_arrival",
+   "description": "log(current price / day's arrival price)"
+  },
+  {
+   "name": "flow_1",
+   "description": "taker buy/sell imbalance over the last step"
+  },
+  {
+   "name": "flow_12",
+   "description": "taker buy/sell imbalance over the last 12 steps"
+  },
+  {
+   "name": "vol_ratio",
+   "description": "short-term volatility (12 steps) / rolling volatility"
+  },
+  {
+   "name": "range_pos",
+   "description": "position of the price within the day's range so far (0 = low, 1 = high)"
+  },
+  {
+   "name": "vwap_dev",
+   "description": "log(current price / day's VWAP so far)"
+  },
+  {
+   "name": "tod_sin",
+   "description": "time of day, sine"
+  },
+  {
+   "name": "tod_cos",
+   "description": "time of day, cosine"
+  }
+ ],
+ "methods": [
+  {
+   "name": "dqn",
+   "label": "DQN",
+   "description": "Deep Q-network: one network estimates the value of each action."
+  },
+  {
+   "name": "ddqn",
+   "label": "Double DQN",
+   "description": "DQN where a second network values the chosen action, which curbs over-optimistic estimates."
+  },
+  {
+   "name": "dueling_ddqn",
+   "label": "Dueling Double DQN",
+   "description": "Double DQN whose network separates the value of the state from the advantage of each action."
+  },
+  {
+   "name": "ppo",
+   "label": "PPO",
+   "description": "Proximal Policy Optimization: learns action probabilities directly, with clipped updates."
+  }
+ ],
+ "defaults": {
+  "data": {
+   "source": "binance",
+   "symbol": "BTCUSDT",
+   "start": "2023-01",
+   "end": "2024-12",
+   "dir": "data",
+   "synthetic_days": 120,
+   "midday_dip_bps": 0
+  },
+  "methods": [
+   "dqn",
+   "ddqn",
+   "dueling_ddqn",
+   "ppo"
+  ],
+  "seeds": 3,
+  "market": {
+   "step_minutes": 5,
+   "window": 60,
+   "features": [
+    "ret_1",
+    "ret_12",
+    "vol",
+    "rel_volume",
+    "price_vs_arrival"
+   ]
+  },
+  "parent": {
+   "mode": "pct_prev_day_volume",
+   "value": 0.01
+  },
+  "action": {
+   "mode": "twap_multiple",
+   "grid": [
+    0.0,
+    0.5,
+    1.0,
+    2.0,
+    4.0
+   ]
+  },
+  "costs": {
+   "fees": {
+    "enabled": true,
+    "bps": 1.0
+   },
+   "spread": {
+    "enabled": true,
+    "mode": "fixed",
+    "half_spread_bps": 0.5,
+    "range_coef": 0.25
+   },
+   "temp_impact": {
+    "enabled": true,
+    "eta": 1.0,
+    "delta": 0.5
+   },
+   "perm_impact": {
+    "enabled": false,
+    "gamma": 0.05
+   },
+   "participation_cap": {
+    "enabled": true,
+    "max_pct": 0.1
+   }
+  },
+  "split": {
+   "train": 0.6,
+   "val": 0.2,
+   "embargo_days": 1
+  },
+  "dqn": {
+   "hidden": [
+    64,
+    64
+   ],
+   "lr": 0.0003,
+   "gamma": 1.0,
+   "batch_size": 256,
+   "buffer_size": 200000,
+   "epochs": 12,
+   "parallel_envs": 16,
+   "eps_start": 1.0,
+   "eps_end": 0.05,
+   "eps_decay_frac": 0.6,
+   "tau": 0.005,
+   "warmup_steps": 5000,
+   "reward_scale": 0.1
+  },
+  "ppo": {
+   "hidden": [
+    64,
+    64
+   ],
+   "lr": 0.0003,
+   "gamma": 1.0,
+   "gae_lambda": 0.95,
+   "clip": 0.2,
+   "entropy_coef": 0.01,
+   "value_coef": 0.5,
+   "update_epochs": 4,
+   "minibatch": 512,
+   "epochs": 12,
+   "parallel_envs": 16,
+   "reward_scale": 0.1
+  }
+ }
+}

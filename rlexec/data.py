@@ -28,6 +28,32 @@ def load_binance_klines(paths) -> pd.DataFrame:
     return bars[~bars.index.duplicated()]
 
 
+BINANCE_URL = "https://data.binance.vision/data/spot/monthly/klines/{s}/1m/{s}-1m-{ym}.zip"
+
+
+def download_binance(symbol: str, start: str, end: str, out="data", log=print) -> list:
+    """Download monthly 1-minute kline files (skipping ones already present). Returns the local paths."""
+    import urllib.request
+    from pathlib import Path
+
+    out = Path(out)
+    out.mkdir(parents=True, exist_ok=True)
+    paths = []
+    for month in pd.period_range(start, end, freq="M"):
+        url = BINANCE_URL.format(s=symbol, ym=str(month))
+        dest = out / url.rsplit("/", 1)[1]
+        if not dest.exists():
+            try:
+                urllib.request.urlretrieve(url, dest)
+                log(f"downloaded {dest.name}")
+            except Exception as e:  # missing month or network error: report and continue
+                log(f"FAILED {dest.name}: {e}")
+                dest.unlink(missing_ok=True)
+                continue
+        paths.append(dest)
+    return paths
+
+
 def synthetic_bars(n_days: int = 120, seed: int = 0, s0: float = 30_000.0, daily_vol: float = 0.03,
                    start: str = "2024-01-01", midday_dip_bps: float = 0.0) -> pd.DataFrame:
     """1-minute bars with a U-shaped intraday vol/volume profile. For tests and demos only.

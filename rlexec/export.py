@@ -29,7 +29,8 @@ def export_json(path, env, cfg: dict, costs, days: list, policies: list, results
                  "n_days": len(days), "first_day": str(days[0].date.date()), "last_day": str(days[-1].date.date())},
         "config": {**cfg, "costs": costs.to_dict()},
         "cost_description": costs.describe(),
-        "policies": [{"name": p.name, "uses_future": p.uses_future} for p in policies],
+        "policies": [{"name": p.name, "label": p.label, "kind": p.kind, "uses_future": p.uses_future}
+                     for p in policies],
         "summary": json.loads(summ.round(4).to_json(orient="records")),
         "daily": {"dates": [str(d.date()) for d in wide.index],
                   "shortfall_bps": {c: wide[c].round(3).tolist() for c in wide.columns}},

@@ -7,27 +7,27 @@
 <style>
 :root {
   color-scheme: light;
-  --page: #f5f5f3; --surface-1: #fcfcfb; --border: #e3e2de; --grid: #e9e8e4;
-  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #7b7a75;
+  --page: #f5f5f3; --surface-1: #fcfcfb; --surface-2: #f1f0ed; --border: #e3e2de; --grid: #e9e8e4;
+  --text-primary: #0b0b0b; --text-secondary: #52514e; --text-muted: #7b7a75; --neutral: #8a8984;
   --series-1: #2a78d6; --series-2: #eb6834; --series-3: #1baf7a; --series-4: #eda100;
   --series-5: #e87ba4; --series-6: #008300; --series-7: #6250d6; --series-8: #e34948;
-  --on-bg: #e4f3ec; --on-fg: #0d6b49; --off-bg: #ecebe7; --off-fg: #6b6a65;
+  --on-bg: #e4f3ec; --on-fg: #0d6b49; --off-bg: #ecebe7; --off-fg: #6b6a65; --accent: #2a78d6;
 }
 @media (prefers-color-scheme: dark) {
   :root {
     color-scheme: dark;
-    --page: #111110; --surface-1: #1a1a19; --border: #33322f; --grid: #2a2a28;
-    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86;
+    --page: #111110; --surface-1: #1a1a19; --surface-2: #232321; --border: #33322f; --grid: #2a2a28;
+    --text-primary: #f0efec; --text-secondary: #c3c2b7; --text-muted: #8f8e86; --neutral: #7d7c75;
     --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --series-4: #c98500;
     --series-5: #d55181; --series-6: #008300; --series-7: #9085e9; --series-8: #e66767;
-    --on-bg: #17332a; --on-fg: #7fd4b0; --off-bg: #2a2a28; --off-fg: #9a9991;
+    --on-bg: #17332a; --on-fg: #7fd4b0; --off-bg: #2a2a28; --off-fg: #9a9991; --accent: #3987e5;
   }
 }
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--page); color: var(--text-primary);
   font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
 main { max-width: 1040px; margin: 0 auto; padding: 28px 20px 60px; }
-header { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; margin-bottom: 18px; }
+header { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; justify-content: space-between; margin-bottom: 14px; }
 h1 { font-size: 24px; margin: 0; letter-spacing: -0.01em; }
 h2 { font-size: 16px; margin: 0 0 2px; }
 .sub { color: var(--text-secondary); margin: 2px 0 0; }
@@ -36,7 +36,13 @@ h2 { font-size: 16px; margin: 0 0 2px; }
 .note { border-left: 3px solid var(--series-4); padding: 8px 12px; background: var(--surface-1); border-radius: 4px; margin-bottom: 16px; color: var(--text-secondary); }
 .btn { font: inherit; padding: 7px 12px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); cursor: pointer; }
 .btn:hover { border-color: var(--text-muted); }
-select { font: inherit; padding: 5px 8px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.small { padding: 3px 9px; font-size: 13px; }
+nav { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin-bottom: 18px; }
+nav button { font: inherit; background: none; border: 0; border-bottom: 2px solid transparent; padding: 8px 14px; color: var(--text-secondary); cursor: pointer; margin-bottom: -1px; }
+nav button[aria-selected="true"] { color: var(--text-primary); border-bottom-color: var(--accent); font-weight: 600; }
+select, input[type=text], input[type=number], input[type=month] { font: inherit; padding: 5px 8px; border-radius: 7px; border: 1px solid var(--border); background: var(--surface-1); color: var(--text-primary); }
+input[type=number] { width: 92px; } input[type=text] { width: 150px; }
 .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); gap: 10px 24px; margin-top: 10px; }
 .kv .k { color: var(--text-muted); font-size: 12px; text-transform: uppercase; letter-spacing: .04em; }
 .kv .v { font-variant-numeric: tabular-nums; }
@@ -46,7 +52,9 @@ ul.costs li { display: flex; gap: 10px; align-items: baseline; }
 .chip.on { background: var(--on-bg); color: var(--on-fg); } .chip.off { background: var(--off-bg); color: var(--off-fg); }
 li.off .txt { color: var(--text-muted); }
 code { font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
-details { margin-top: 10px; color: var(--text-secondary); } pre { white-space: pre-wrap; font: 12px/1.5 ui-monospace, Menlo, monospace; }
+details { margin-top: 10px; color: var(--text-secondary); }
+pre { white-space: pre-wrap; font: 12px/1.5 ui-monospace, Menlo, monospace; margin: 0; }
+pre.box { background: var(--surface-2); border-radius: 8px; padding: 12px 14px; overflow-x: auto; white-space: pre; }
 .tablewrap { overflow-x: auto; }
 table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; }
 th, td { padding: 7px 10px; text-align: right; border-bottom: 1px solid var(--border); white-space: nowrap; }
@@ -56,6 +64,9 @@ tr:last-child td { border-bottom: 0; }
 .sw { display: inline-block; width: 10px; height: 10px; border-radius: 3px; margin-right: 8px; }
 .tag { font-size: 11px; color: var(--text-muted); border: 1px solid var(--border); border-radius: 99px; padding: 0 6px; margin-left: 6px; }
 .legend { display: flex; flex-wrap: wrap; gap: 4px 16px; font-size: 13px; color: var(--text-secondary); margin: 6px 0 4px; }
+.legend button { font: inherit; background: none; border: 1px solid transparent; border-radius: 99px; padding: 1px 8px 1px 6px; color: var(--text-secondary); cursor: pointer; }
+.legend button[aria-pressed="false"] { opacity: .45; text-decoration: line-through; }
+.legend button:hover { border-color: var(--border); }
 svg { display: block; width: 100%; height: auto; overflow: visible; }
 svg text { fill: var(--text-secondary); font-size: 12px; font-family: inherit; }
 svg text.strong { fill: var(--text-primary); }
@@ -64,6 +75,17 @@ svg text.strong { fill: var(--text-primary); }
   padding: 8px 10px; font-size: 12.5px; box-shadow: 0 4px 16px rgba(0,0,0,.14); display: none; z-index: 10; min-width: 120px; font-variant-numeric: tabular-nums; }
 #tip .t { color: var(--text-muted); margin-bottom: 3px; } #tip .r { display: flex; justify-content: space-between; gap: 16px; }
 footer { color: var(--text-muted); font-size: 13px; margin-top: 20px; }
+.fields { display: flex; flex-wrap: wrap; gap: 12px 22px; margin-top: 10px; align-items: flex-end; }
+.field { display: flex; flex-direction: column; gap: 3px; font-size: 13px; color: var(--text-secondary); }
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 6px 20px; margin-top: 10px; }
+.check { display: flex; gap: 8px; align-items: baseline; }
+.check small { color: var(--text-muted); display: block; }
+.costrow { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: flex-end; padding: 10px 0; border-bottom: 1px solid var(--border); }
+.costrow:last-of-type { border-bottom: 0; }
+.costrow .name { width: 190px; } .costrow .name small { display: block; color: var(--text-muted); }
+.costrow.off .field { opacity: .45; }
+.steps { margin: 10px 0 0; padding-left: 20px; } .steps li { margin-bottom: 8px; }
+[hidden] { display: none !important; }
 </style>
 </head>
 <body>
@@ -78,28 +100,38 @@ footer { color: var(--text-muted); font-size: 13px; margin-top: 20px; }
       <button class="btn" id="load">Open a results file…</button>
     </div>
   </header>
-  <div id="app"></div>
-  <footer>Task: buy a fixed quantity within one day. Shortfall is the all-in average price paid relative to the day's first price, in basis points; lower is better. Generate a results file with <code>python scripts/train_ddqn.py --export results.json</code>.</footer>
+  <nav role="tablist">
+    <button role="tab" id="tab-results" aria-selected="true">Results</button>
+    <button role="tab" id="tab-new" aria-selected="false">New run</button>
+  </nav>
+  <div id="results"></div>
+  <div id="builder" hidden></div>
+  <footer>Task: buy a fixed quantity within one day. Shortfall is the all-in average price paid relative to the day's first price, in basis points; lower is better. Source and instructions: <a href="https://github.com/HugoWEI/rl-exec-lab" style="color:inherit">github.com/HugoWEI/rl-exec-lab</a>.</footer>
 </main>
 <div id="tip"></div>
 <script>
-const LABELS = { twap: "TWAP", buy_at_start: "Buy at start", buy_at_end: "Buy at end", random: "Random",
-  perfect_foresight: "Perfect foresight", ddqn: "DDQN", ppo: "PPO" };
-const SLOT = { twap: 1, buy_at_start: 2, buy_at_end: 3, random: 4, perfect_foresight: 5, ddqn: 7, ppo: 6 };  // colour follows the policy, not its rank
+// ---------- shared helpers ------------------------------------------------------------------
+const FALLBACK_LABELS = { twap: "TWAP", buy_at_start: "Buy at start", buy_at_end: "Buy at end", random: "Random",
+  perfect_foresight: "Perfect foresight", dqn: "DQN", ddqn: "Double DQN", dueling_ddqn: "Dueling Double DQN", ppo: "PPO" };
+// Colour follows the policy, never its rank. Simple reference baselines are grey (told apart by label and dash).
+const SLOT = { twap: 1, perfect_foresight: 2, dqn: 3, ddqn: 4, dueling_ddqn: 5, ppo: 7 };
+const DASH = { buy_at_start: "7 4", buy_at_end: "2 4", random: "1 5" };
 const COMPONENTS = [["fees", "Fees"], ["spread", "Spread"], ["temp_impact", "Temp. impact"], ["perm_impact", "Perm. impact"]];
 const NS = "http://www.w3.org/2000/svg";
+let LABELS = { ...FALLBACK_LABELS }, SCHEMA = null;
 const label = p => LABELS[p] || p;
-const color = p => `var(--series-${SLOT[p] || 8})`;
+const color = p => (SLOT[p] ? `var(--series-${SLOT[p]})` : "var(--neutral)");
 const f1 = x => (x == null ? "–" : (Math.abs(x) < 0.005 ? 0 : x).toFixed(Math.abs(x) >= 100 ? 0 : Math.abs(x) >= 10 ? 1 : 2));
 const sgn = x => (x > 0.005 ? "+" : "") + f1(x);
 const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const $ = id => document.getElementById(id);
 function svgEl(tag, attrs = {}, parent) {
   const e = document.createElementNS(NS, tag);
   for (const k in attrs) k === "text" ? (e.textContent = attrs[k]) : e.setAttribute(k, attrs[k]);
   if (parent) parent.appendChild(e);
   return e;
 }
-const tip = document.getElementById("tip");
+const tip = $("tip");
 function showTip(evt, html) {
   tip.innerHTML = html; tip.style.display = "block";
   const w = tip.offsetWidth, h = tip.offsetHeight;
@@ -114,12 +146,15 @@ function ticks(lo, hi, n = 6) {
   for (let v = Math.ceil(lo / step) * step; v <= hi + 1e-9; v += step) out.push(+v.toFixed(10));
   return out;
 }
+const sw = p => `<span class="sw" style="background:${color(p)}"></span>`;
 
+// ---------- results view ----------------------------------------------------------------------
 function render(data) {
-  const app = document.getElementById("app");
-  const m = data.meta, cfg = data.config, c = cfg.costs;
-  document.getElementById("subtitle").textContent =
-    `${m.label} · ${m.split === "val" ? "validation" : m.split} split · ${m.n_days} days (${m.first_day} to ${m.last_day})`;
+  LABELS = { ...FALLBACK_LABELS };
+  for (const p of data.policies || []) if (p.label) LABELS[p.name] = p.label;
+  const app = $("results"), m = data.meta, cfg = data.config, c = cfg.costs;
+  const kind = Object.fromEntries((data.policies || []).map(p => [p.name, p]));
+  $("subtitle").textContent = `${m.label} · ${m.split === "val" ? "validation" : m.split} split · ${m.n_days} days (${m.first_day} to ${m.last_day})`;
   const rows = data.summary;
   const tcomps = COMPONENTS.filter(([k]) => c[k].enabled || rows.some(r => r[k] > 0));
   const anyCost = COMPONENTS.some(([k]) => c[k].enabled);
@@ -132,32 +167,33 @@ function render(data) {
     [c.participation_cap.enabled, `<b>Participation cap</b>: each order ≤ ${(100 * c.participation_cap.max_pct).toFixed(0)}% of V; waived on the last step`],
   ];
   const parent = cfg.parent.mode === "pct_prev_day_volume"
-    ? `${(100 * cfg.parent.value).toFixed(2).replace(/\.?0+$/, "")}% of previous day's volume` : `${cfg.parent.value} units`;
+    ? `${+(100 * cfg.parent.value).toFixed(3)}% of previous day's volume` : `${cfg.parent.value} units`;
   const sizes = m.split_sizes ? Object.entries(m.split_sizes).map(([k, v]) => `${k} ${v}`).join(" · ") : "–";
+  const tr = data.training;
 
   app.innerHTML = `
     ${m.note ? `<div class="note">${esc(m.note)}</div>` : ""}
     ${anyCost ? "" : `<div class="note">All costs are off: this run measures pure price timing, not execution quality.</div>`}
     <section class="card">
-      <h2>Setup</h2>
+      <div class="row"><h2>Setup</h2><button class="btn small" id="edit">Edit these settings in a new run</button></div>
       <div class="grid">
         <div class="kv"><div class="k">Order size</div><div class="v">${parent}</div></div>
         <div class="kv"><div class="k">Decision step</div><div class="v">${cfg.market.step_minutes} min (${1440 / cfg.market.step_minutes} per day)</div></div>
         <div class="kv"><div class="k">Days per split</div><div class="v">${sizes}</div></div>
-        <div class="kv"><div class="k">State features</div><div class="v">${cfg.market.features.join(", ")}</div></div>
         ${cfg.action ? `<div class="kv"><div class="k">Agent actions</div><div class="v">${cfg.action.mode === "twap_multiple" ? "× TWAP rate: " : "share of remaining: "}${cfg.action.grid.join(", ")}</div></div>` : ""}
       </div>
+      <div class="kv" style="margin-top:10px"><div class="k">State features</div><div class="v">${cfg.market.features.join(", ") || "none"} (plus time and inventory remaining)</div></div>
       <ul class="costs">${costLines.map(([on, t]) => `<li class="${on ? "on" : "off"}"><span class="chip ${on ? "on" : "off"}">${on ? "ON" : "OFF"}</span><span class="txt">${t}</span></li>`).join("")}</ul>
       <details><summary>Full cost model text</summary><pre>${esc(data.cost_description)}</pre></details>
     </section>
     <section class="card">
       <h2>Results</h2>
-      <p class="hint">Mean over ${m.n_days} days, in bps. "vs TWAP" below zero means cheaper than TWAP; the interval is a 95% paired bootstrap over days.</p>
+      <p class="hint">Mean over ${m.n_days} days, in bps. "vs TWAP" below zero means cheaper than TWAP; the interval is a 95% paired bootstrap over days.${tr ? " Each RL row is the average over its seeds." : ""}</p>
       <div class="tablewrap"><table>
         <thead><tr><th>Policy</th><th>Shortfall</th><th>vs TWAP</th><th>95% CI</th><th>Timing</th>${tcomps.map(([, n]) => `<th>${n}</th>`).join("")}<th>Forced</th></tr></thead>
-        <tbody>${rows.map(r => `<tr><td><span class="sw" style="background:${color(r.policy)}"></span>${label(r.policy)}${(data.policies.find(p => p.name === r.policy) || {}).uses_future ? '<span class="tag">hindsight</span>' : ""}</td>
+        <tbody>${rows.map(r => { const k = kind[r.policy] || {}; return `<tr><td>${sw(r.policy)}${esc(label(r.policy))}${k.uses_future ? '<span class="tag">hindsight</span>' : ""}${k.kind === "rl" ? '<span class="tag">RL</span>' : ""}</td>
           <td>${f1(r.shortfall_bps)}</td><td>${r.policy === "twap" ? "–" : sgn(r.vs_twap)}</td><td>${r.policy === "twap" ? "–" : `${sgn(r.ci_low)} to ${sgn(r.ci_high)}`}</td>
-          <td>${f1(r.timing)}</td>${tcomps.map(([k]) => `<td>${f1(r[k])}</td>`).join("")}<td>${(100 * r.forced_pct).toFixed(1)}%</td></tr>`).join("")}</tbody>
+          <td>${f1(r.timing)}</td>${tcomps.map(([c2]) => `<td>${f1(r[c2])}</td>`).join("")}<td>${(100 * r.forced_pct).toFixed(1)}%</td></tr>`; }).join("")}</tbody>
       </table></div>
     </section>
     <section class="card">
@@ -165,10 +201,15 @@ function render(data) {
       <p class="hint">Dot = mean difference in bps, bar = 95% interval. An interval that crosses zero is not distinguishable from TWAP.</p>
       <div id="c-diff"></div>
     </section>
-    ${data.training ? `<section class="card">
-      <h2>DDQN seeds</h2>
-      <p class="hint">Each dot is one independently trained agent: its mean difference vs TWAP in bps on this split. The "DDQN" row above is the average over seeds. A wide spread means the result depends on the random seed.</p>
+    ${tr ? `<section class="card">
+      <h2>RL agents, seed by seed</h2>
+      <p class="hint">Each filled dot is one independently trained agent: its mean difference vs TWAP in bps on this split. The open ring is the method's average at the final training epoch on validation, which involves no picking of the best epoch. A wide spread, or a ring far from the dots, means the result is fragile.</p>
       <div id="c-seeds"></div>
+    </section>
+    <section class="card">
+      <h2>Learning curves</h2>
+      <p class="hint">Validation difference vs TWAP (bps) after each training epoch, averaged over seeds. Below zero is better than TWAP.</p>
+      <div class="legend" id="l-curves"></div><div id="c-curves"></div>
     </section>` : ""}
     <section class="card">
       <h2>Trading costs paid</h2>
@@ -177,98 +218,130 @@ function render(data) {
     </section>
     <section class="card">
       <div class="row"><h2>Schedules on one day</h2><label>Day <select id="day"></select></label></div>
-      <p class="hint">Top: price during the day. Bottom: share of the order bought so far, per policy.</p>
+      <p class="hint">Top: price during the day. Bottom: share of the order bought so far. Click a name to show or hide it.${tr ? " RL lines show each method's median seed." : ""}</p>
       <div class="legend" id="l-sched"></div><div id="c-price"></div><div id="c-sched"></div>
     </section>`;
 
+  $("edit").onclick = () => { if (!SCHEMA) return; fillForm(mergeCfg(SCHEMA.defaults, cfg)); showTab("new"); };
   drawDiff(rows.filter(r => r.policy !== "twap"));
+  if (tr) { drawSeeds(tr); drawCurves(tr); }
   drawCosts(rows, c);
-  if (data.training) drawSeeds(data.training);
-  const sel = document.getElementById("day");
+  const names = data.policies.map(p => p.name), rl = names.filter(n => (kind[n] || {}).kind === "rl");
+  const visible = new Set(rl.length ? ["twap", "perfect_foresight", ...rl] : names);
+  const sel = $("day");
   sel.innerHTML = data.samples.map((s, i) => `<option value="${i}">${s.date}</option>`).join("");
-  sel.onchange = () => drawSchedule(data, +sel.value);
-  drawSchedule(data, 0);
+  const redraw = () => drawSchedule(data, +sel.value, visible, redraw);
+  sel.onchange = redraw;
+  redraw();
 }
 
-function drawDiff(rows) {
-  const W = 960, L = 150, R = 70, rowH = 34, H = rows.length * rowH + 34;
-  const lo0 = Math.min(0, ...rows.map(r => r.ci_low)), hi0 = Math.max(0, ...rows.map(r => r.ci_high));
-  const pad = (hi0 - lo0) * 0.04 || 1, lo = lo0 - pad, hi = hi0 + pad;
+function rowChart(host, rows, aria, lo0, hi0, draw, rowH = 34) {
+  const W = 960, L = 170, R = 70, H = rows.length * rowH + 34;
+  const pad = (hi0 - lo0) * 0.05 || 1, lo = lo0 < 0 ? lo0 - pad : lo0, hi = hi0 + pad;
   const x = v => L + (v - lo) / (hi - lo) * (W - L - R);
-  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Difference versus TWAP by policy" });
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": aria });
   for (const t of ticks(lo, hi, 7)) {
-    svgEl("line", { x1: x(t), x2: x(t), y1: 4, y2: H - 26, stroke: t === 0 ? "var(--text-muted)" : "var(--grid)", "stroke-width": 1 }, svg);
+    svgEl("line", { x1: x(t), x2: x(t), y1: 4, y2: H - 26, stroke: t === 0 && lo < 0 ? "var(--text-muted)" : "var(--grid)" }, svg);
     svgEl("text", { x: x(t), y: H - 8, "text-anchor": "middle", text: t }, svg);
   }
   rows.forEach((r, i) => {
     const y = 4 + i * rowH + rowH / 2;
-    svgEl("text", { x: L - 12, y: y + 4, "text-anchor": "end", class: "strong", text: label(r.policy) }, svg);
-    svgEl("line", { x1: x(r.ci_low), x2: x(r.ci_high), y1: y, y2: y, stroke: color(r.policy), "stroke-width": 2, "stroke-linecap": "round", opacity: .55 }, svg);
-    svgEl("circle", { cx: x(r.vs_twap), cy: y, r: 5, fill: color(r.policy), stroke: "var(--surface-1)", "stroke-width": 2 }, svg);
-    svgEl("text", { x: x(r.ci_high) + 10, y: y + 4, text: sgn(r.vs_twap) }, svg);
-    const hit = svgEl("rect", { x: 0, y: y - rowH / 2, width: W, height: rowH, fill: "transparent" }, svg);
-    hit.onmousemove = e => showTip(e, `<div class="t">${label(r.policy)} vs TWAP</div><div class="r"><span>Mean</span><b>${sgn(r.vs_twap)} bps</b></div><div class="r"><span>95% CI</span><span>${sgn(r.ci_low)} to ${sgn(r.ci_high)}</span></div>`);
-    hit.onmouseleave = hideTip;
+    svgEl("text", { x: L - 12, y: y + 4, "text-anchor": "end", class: "strong", text: label(r.policy || r.name) }, svg);
+    draw(svg, r, x, y, W, rowH);
   });
-  document.getElementById("c-diff").replaceChildren(svg);
+  $(host).replaceChildren(svg);
 }
 
+function drawDiff(rows) {
+  rowChart("c-diff", rows, "Difference versus TWAP by policy", Math.min(0, ...rows.map(r => r.ci_low)), Math.max(0, ...rows.map(r => r.ci_high)),
+    (svg, r, x, y, W, rowH) => {
+      svgEl("line", { x1: x(r.ci_low), x2: x(r.ci_high), y1: y, y2: y, stroke: color(r.policy), "stroke-width": 2, "stroke-linecap": "round", opacity: .55 }, svg);
+      svgEl("circle", { cx: x(r.vs_twap), cy: y, r: 5, fill: color(r.policy), stroke: "var(--surface-1)", "stroke-width": 2 }, svg);
+      svgEl("text", { x: x(r.ci_high) + 10, y: y + 4, text: sgn(r.vs_twap) }, svg);
+      const hit = svgEl("rect", { x: 0, y: y - rowH / 2, width: W, height: rowH, fill: "transparent" }, svg);
+      hit.onmousemove = e => showTip(e, `<div class="t">${esc(label(r.policy))} vs TWAP</div><div class="r"><span>Mean</span><b>${sgn(r.vs_twap)} bps</b></div><div class="r"><span>95% CI</span><span>${sgn(r.ci_low)} to ${sgn(r.ci_high)}</span></div>`);
+      hit.onmouseleave = hideTip;
+    });
+}
+
+const methodsOf = tr => tr.methods || [...new Set(tr.runs.map(r => r.method || "dueling_ddqn"))].map(name => ({ name }));
+const runsOf = (tr, m) => tr.runs.filter(r => (r.method || "dueling_ddqn") === m);
+const mean = a => a.reduce((s, v) => s + v, 0) / a.length;
+const finalOf = r => r.final_val_vs_twap ?? r.epochs[r.epochs.length - 1].val_vs_twap;
+
 function drawSeeds(tr) {
-  const key = tr.split + "_vs_twap", runs = tr.runs, vals = runs.map(r => r[key]);
-  const W = 960, L = 150, R = 70, H = 84;
-  const lo0 = Math.min(0, ...vals), hi0 = Math.max(0, ...vals), pad = (hi0 - lo0) * 0.12 || 1, lo = lo0 - pad, hi = hi0 + pad;
-  const x = v => L + (v - lo) / (hi - lo) * (W - L - R), y = 30;
-  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Difference versus TWAP for each DDQN seed" });
-  for (const t of ticks(lo, hi, 7)) {
-    svgEl("line", { x1: x(t), x2: x(t), y1: 6, y2: H - 26, stroke: t === 0 ? "var(--text-muted)" : "var(--grid)" }, svg);
-    svgEl("text", { x: x(t), y: H - 8, "text-anchor": "middle", text: t }, svg);
-  }
-  svgEl("text", { x: L - 12, y: y + 4, "text-anchor": "end", class: "strong", text: `${runs.length} seeds` }, svg);
-  runs.forEach(r => {
-    const dot = svgEl("circle", { cx: x(r[key]), cy: y, r: 6, fill: color("ddqn"), stroke: "var(--surface-1)", "stroke-width": 2 }, svg);
-    dot.onmousemove = e => showTip(e, `<div class="t">Seed ${r.seed}</div><div class="r"><span>vs TWAP</span><b>${sgn(r[key])} bps</b></div><div class="r"><span>Best epoch (validation)</span><span>${r.best_epoch} of ${r.epochs.length}</span></div>`);
-    dot.onmouseleave = hideTip;
+  const key = tr.split + "_vs_twap", ms = methodsOf(tr);
+  const finals = Object.fromEntries(ms.map(m => [m.name, mean(runsOf(tr, m.name).map(finalOf))]));
+  const all = [...tr.runs.map(r => r[key]), ...Object.values(finals)];
+  rowChart("c-seeds", ms, "Difference versus TWAP for each trained agent", Math.min(0, ...all), Math.max(0, ...all), (svg, m, x, y) => {
+    const ring = svgEl("circle", { cx: x(finals[m.name]), cy: y, r: 7, fill: "var(--surface-1)", stroke: color(m.name), "stroke-width": 2 }, svg);
+    ring.onmousemove = e => showTip(e, `<div class="t">${esc(label(m.name))}</div><div class="r"><span>Final epoch, validation, mean of seeds</span><b>${sgn(finals[m.name])} bps</b></div>`);
+    ring.onmouseleave = hideTip;
+    for (const r of runsOf(tr, m.name)) {
+      const dot = svgEl("circle", { cx: x(r[key]), cy: y, r: 5, fill: color(m.name), stroke: "var(--surface-1)", "stroke-width": 2 }, svg);
+      dot.onmousemove = e => showTip(e, `<div class="t">${esc(label(m.name))}, seed ${r.seed}</div><div class="r"><span>vs TWAP</span><b>${sgn(r[key])} bps</b></div><div class="r"><span>Best epoch (validation)</span><span>${r.best_epoch} of ${r.epochs.length}</span></div><div class="r"><span>Final epoch (validation)</span><span>${sgn(finalOf(r))} bps</span></div>`);
+      dot.onmouseleave = hideTip;
+    }
   });
-  document.getElementById("c-seeds").replaceChildren(svg);
+}
+
+function drawCurves(tr) {
+  const ms = methodsOf(tr), E = Math.max(...tr.runs.map(r => r.epochs.length));
+  const curves = ms.map(m => ({ name: m.name, ys: Array.from({ length: E }, (_, i) => mean(runsOf(tr, m.name).filter(r => r.epochs[i]).map(r => r.epochs[i].val_vs_twap))) }));
+  $("l-curves").innerHTML = ms.map(m => `<span>${sw(m.name)}${esc(label(m.name))}</span>`).join("");
+  const W = 960, L = 56, R = 16, H = 250, B = 30, all = curves.flatMap(c => c.ys);
+  const lo0 = Math.min(0, ...all), hi0 = Math.max(0, ...all), pad = (hi0 - lo0) * 0.08 || 1, lo = lo0 - pad, hi = hi0 + pad;
+  const x = i => L + (E > 1 ? i / (E - 1) : 0.5) * (W - L - R), y = v => 8 + (hi - v) / (hi - lo) * (H - 8 - B);
+  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Validation difference versus TWAP by training epoch" });
+  for (const t of ticks(lo, hi, 5)) {
+    svgEl("line", { x1: L, x2: W - R, y1: y(t), y2: y(t), stroke: t === 0 ? "var(--text-muted)" : "var(--grid)" }, svg);
+    svgEl("text", { x: L - 8, y: y(t) + 4, "text-anchor": "end", text: t }, svg);
+  }
+  for (let i = 0; i < E; i++) svgEl("text", { x: x(i), y: H - 10, "text-anchor": "middle", text: (i ? "" : "epoch ") + (i + 1) }, svg);
+  for (const c of curves) {
+    svgEl("path", { d: c.ys.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(""), fill: "none", stroke: color(c.name), "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+    c.ys.forEach((v, i) => svgEl("circle", { cx: x(i), cy: y(v), r: 3, fill: color(c.name) }, svg));
+  }
+  const cross = svgEl("line", { y1: 8, y2: H - B, stroke: "var(--text-muted)", "stroke-dasharray": "3 3", visibility: "hidden" }, svg);
+  const hit = svgEl("rect", { x: L - 10, y: 0, width: W - L - R + 20, height: H - B, fill: "transparent" }, svg);
+  hit.onmousemove = e => {
+    const box = svg.getBoundingClientRect(), px = (e.clientX - box.left) / box.width * W;
+    const i = E > 1 ? Math.max(0, Math.min(E - 1, Math.round((px - L) / (W - L - R) * (E - 1)))) : 0;
+    cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
+    showTip(e, `<div class="t">Epoch ${i + 1}</div>` + curves.map(c => `<div class="r"><span>${sw(c.name)}${esc(label(c.name))}</span><span>${sgn(c.ys[i])} bps</span></div>`).join(""));
+  };
+  hit.onmouseleave = () => { hideTip(); cross.setAttribute("visibility", "hidden"); };
+  $("c-curves").replaceChildren(svg);
 }
 
 function drawCosts(rows, c) {
   const comps = COMPONENTS.filter(([k]) => c[k].enabled || rows.some(r => r[k] > 0));
-  document.getElementById("l-cost").innerHTML = comps.map(([, n], i) => `<span><span class="sw" style="background:var(--series-${i + 1})"></span>${n}</span>`).join("");
-  const W = 960, L = 150, R = 60, rowH = 34, H = rows.length * rowH + 34;
+  $("l-cost").innerHTML = comps.map(([, n], i) => `<span><span class="sw" style="background:var(--series-${i + 1})"></span>${n}</span>`).join("");
   const total = r => comps.reduce((s, [k]) => s + r[k], 0);
-  const hi = Math.max(...rows.map(total)) * 1.05 || 1;
-  const x = v => L + v / hi * (W - L - R);
-  const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Trading costs by policy and component" });
-  for (const t of ticks(0, hi, 6)) {
-    svgEl("line", { x1: x(t), x2: x(t), y1: 4, y2: H - 26, stroke: "var(--grid)", "stroke-width": 1 }, svg);
-    svgEl("text", { x: x(t), y: H - 8, "text-anchor": "middle", text: t }, svg);
-  }
-  rows.forEach((r, i) => {
-    const y = 4 + i * rowH + 8;
-    svgEl("text", { x: L - 12, y: y + 13, "text-anchor": "end", class: "strong", text: label(r.policy) }, svg);
+  rowChart("c-cost", rows, "Trading costs by policy and component", 0, Math.max(...rows.map(total), 0.01), (svg, r, x, y) => {
     let acc = 0;
     comps.forEach(([k, n], j) => {
       const v = r[k]; if (v <= 0) return;
       const x0 = x(acc), w = Math.max(0, x(acc + v) - x0 - 2);
-      const seg = svgEl("rect", { x: x0, y, width: w, height: 18, rx: 2, fill: `var(--series-${j + 1})` }, svg);
-      seg.onmousemove = e => showTip(e, `<div class="t">${label(r.policy)}</div><div class="r"><span>${n}</span><b>${f1(v)} bps</b></div><div class="r"><span>All costs</span><span>${f1(total(r))} bps</span></div>`);
+      const seg = svgEl("rect", { x: x0, y: y - 9, width: w, height: 18, rx: 2, fill: `var(--series-${j + 1})` }, svg);
+      seg.onmousemove = e => showTip(e, `<div class="t">${esc(label(r.policy))}</div><div class="r"><span>${n}</span><b>${f1(v)} bps</b></div><div class="r"><span>All costs</span><span>${f1(total(r))} bps</span></div>`);
       seg.onmouseleave = hideTip;
       acc += v;
     });
-    svgEl("text", { x: x(acc) + 6, y: y + 13, text: f1(total(r)) }, svg);
+    svgEl("text", { x: x(acc) + 6, y: y + 4, text: f1(total(r)) }, svg);
   });
-  document.getElementById("c-cost").replaceChildren(svg);
 }
 
-function drawSchedule(data, idx) {
+function drawSchedule(data, idx, visible, redraw) {
   const s = data.samples[idx], names = data.policies.map(p => p.name), n = s.price.length;
-  document.getElementById("l-sched").innerHTML = names.map(p => `<span><span class="sw" style="background:${color(p)}"></span>${label(p)}</span>`).join("");
+  const leg = $("l-sched");
+  leg.innerHTML = names.map(p => `<button aria-pressed="${visible.has(p)}" data-p="${p}">${sw(p)}${esc(label(p))}</button>`).join("");
+  leg.querySelectorAll("button").forEach(b => b.onclick = () => { visible.has(b.dataset.p) ? visible.delete(b.dataset.p) : visible.add(b.dataset.p); redraw(); });
+  const shown = names.filter(p => visible.has(p));
   const W = 960, L = 56, R = 16, x = i => L + i / (n - 1) * (W - L - R);
   const hours = [0, 4, 8, 12, 16, 20, 24];
   const path = (ys, y) => ys.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join("");
   const charts = [];
-
   function frame(H, lo, hi, fmt, tickN, host, withX) {
     const B = withX ? 26 : 8, y = v => 8 + (hi - v) / (hi - lo) * (H - 8 - B);
     const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}` });
@@ -279,15 +352,14 @@ function drawSchedule(data, idx) {
     if (withX) for (const h of hours) svgEl("text", { x: x(h / 24 * (n - 1)), y: H - 8, "text-anchor": "middle", text: String(h).padStart(2, "0") + ":00" }, svg);
     const cross = svgEl("line", { y1: 8, y2: H - B, stroke: "var(--text-muted)", "stroke-dasharray": "3 3", visibility: "hidden" }, svg);
     charts.push({ svg, cross });
-    document.getElementById(host).replaceChildren(svg);
+    $(host).replaceChildren(svg);
     return { svg, y };
   }
   const pmin = Math.min(...s.price), pmax = Math.max(...s.price), pp = (pmax - pmin) * 0.08 || 1;
   const a = frame(150, pmin - pp, pmax + pp, v => v.toLocaleString("en-US", { maximumFractionDigits: 0 }), 3, "c-price", false);
   svgEl("path", { d: path(s.price, a.y), fill: "none", stroke: "var(--text-secondary)", "stroke-width": 1.5 }, a.svg);
   const b = frame(260, 0, 100, v => v + "%", 4, "c-sched", true);
-  for (const p of names) svgEl("path", { d: path(s.bought_pct[p], b.y), fill: "none", stroke: color(p), "stroke-width": 2, "stroke-linejoin": "round" }, b.svg);
-
+  for (const p of shown) svgEl("path", { d: path(s.bought_pct[p], b.y), fill: "none", stroke: color(p), "stroke-width": 2, "stroke-linejoin": "round", ...(DASH[p] ? { "stroke-dasharray": DASH[p] } : {}) }, b.svg);
   const step = 1440 / n;
   for (const ch of charts) {
     const hit = svgEl("rect", { x: L, y: 0, width: W - L - R, height: ch.svg.viewBox.baseVal.height, fill: "transparent" }, ch.svg);
@@ -297,24 +369,206 @@ function drawSchedule(data, idx) {
       for (const c2 of charts) { c2.cross.setAttribute("x1", x(i)); c2.cross.setAttribute("x2", x(i)); c2.cross.setAttribute("visibility", "visible"); }
       const mins = i * step, hh = String(Math.floor(mins / 60)).padStart(2, "0"), mm = String(mins % 60).padStart(2, "0");
       showTip(e, `<div class="t">${s.date} ${hh}:${mm} UTC</div><div class="r"><span>Price</span><b>${s.price[i].toLocaleString("en-US", { maximumFractionDigits: 2 })}</b></div>` +
-        names.map(p => `<div class="r"><span><span class="sw" style="background:${color(p)}"></span>${label(p)}</span><span>${s.bought_pct[p][i].toFixed(1)}%</span></div>`).join(""));
+        shown.map(p => `<div class="r"><span>${sw(p)}${esc(label(p))}</span><span>${s.bought_pct[p][i].toFixed(1)}%</span></div>`).join(""));
     };
     hit.onmouseleave = () => { hideTip(); for (const c2 of charts) c2.cross.setAttribute("visibility", "hidden"); };
   }
 }
 
-function fail(msg) {
-  document.getElementById("subtitle").textContent = "No results loaded";
-  document.getElementById("app").innerHTML = `<div class="note">${esc(msg)}</div>`;
+// ---------- run builder ----------------------------------------------------------------------
+function mergeCfg(base, over) {
+  const out = { ...base };
+  for (const k in over) out[k] = over[k] && typeof over[k] === "object" && !Array.isArray(over[k]) && base[k] && typeof base[k] === "object" ? mergeCfg(base[k], over[k]) : over[k];
+  return out;
 }
-document.getElementById("load").onclick = () => document.getElementById("file").click();
-document.getElementById("file").onchange = async e => {
+function buildBuilder() {
+  const S = SCHEMA;
+  $("builder").innerHTML = `
+    <p class="hint" style="font-size:14px">Choose the data, the state the agent sees, the RL methods and the cost model. The page writes a config file; one command on your computer downloads the data, trains (on your GPU if you have one) and produces a results file you can open here. Nothing is uploaded.</p>
+    <section class="card"><h2>1. Data</h2>
+      <div class="fields">
+        <label class="field">Source<select id="b-source"><option value="binance">Binance spot, 1-minute bars</option><option value="synthetic">Synthetic (for testing)</option></select></label>
+        <label class="field bin">Symbol<input type="text" id="b-symbol"></label>
+        <label class="field bin">First month<input type="month" id="b-start"></label>
+        <label class="field bin">Last month<input type="month" id="b-end"></label>
+        <label class="field syn">Days<input type="number" id="b-syndays" min="10" step="10"></label>
+        <label class="field syn">Planted midday dip (bps)<input type="number" id="b-dip" min="0" step="10"></label>
+      </div>
+      <p class="hint syn" style="margin-top:10px">Synthetic prices are unpredictable unless you plant a midday dip, which gives agents something learnable. Useful to check a setup before a long run.</p>
+    </section>
+    <section class="card"><h2>2. Task</h2>
+      <div class="fields">
+        <label class="field">Order size (% of previous day's volume)<input type="number" id="b-size" min="0.01" step="0.1"></label>
+        <label class="field">Decision every<select id="b-step">${[1, 5, 15, 30, 60].map(v => `<option value="${v}">${v} min</option>`).join("")}</select></label>
+        <label class="field">Rolling window (steps)<input type="number" id="b-window" min="5" step="5"></label>
+        <label class="field">Agent actions<select id="b-amode"><option value="twap_multiple">multiples of the TWAP rate</option><option value="fraction_of_remaining">share of remaining inventory</option></select></label>
+        <label class="field">Action values<input type="text" id="b-grid"></label>
+      </div>
+      <div class="fields">
+        <label class="field">Train share (%)<input type="number" id="b-train" min="10" max="90" step="5"></label>
+        <label class="field">Validation share (%)<input type="number" id="b-val" min="5" max="50" step="5"></label>
+        <label class="field">Embargo between splits (days)<input type="number" id="b-embargo" min="0" step="1"></label>
+      </div>
+      <p class="hint" id="b-splitnote" style="margin-top:10px"></p>
+    </section>
+    <section class="card"><div class="row"><h2>3. State features</h2><span><button class="btn small" id="b-fall">All</button> <button class="btn small" id="b-fnone">None</button></span></div>
+      <p class="hint">What the agent observes at each step. Every feature uses past prices only. Time remaining and inventory remaining are always included.</p>
+      <div class="checks">${S.features.map(f => `<label class="check"><input type="checkbox" class="b-feat" value="${f.name}"><span><code>${f.name}</code><small>${esc(f.description)}</small></span></label>`).join("")}</div>
+    </section>
+    <section class="card"><h2>4. RL methods</h2>
+      <p class="hint">Each selected method is trained several times with different random seeds, and all are compared with TWAP, buy at start, buy at end, random and perfect foresight.</p>
+      <div class="checks">${S.methods.map(m => `<label class="check"><input type="checkbox" class="b-meth" value="${m.name}"><span><b>${esc(m.label)}</b><small>${esc(m.description)}</small></span></label>`).join("")}</div>
+      <div class="fields">
+        <label class="field">Seeds per method<input type="number" id="b-seeds" min="1" max="20" step="1"></label>
+        <label class="field">Training epochs<input type="number" id="b-epochs" min="1" max="200" step="1"></label>
+      </div>
+      <p class="hint" id="b-count" style="margin-top:10px"></p>
+    </section>
+    <section class="card"><div class="row"><h2>5. Cost model</h2><span>Presets: <button class="btn small" data-preset="none">Frictionless</button> <button class="btn small" data-preset="basic">Fees + spread</button> <button class="btn small" data-preset="sqrt">Square-root impact</button></span></div>
+      <p class="hint">Every cost is a fraction of the fill price, charged on each child order. σ is rolling volatility and V is rolling mean step volume, both from past bars.</p>
+      <div class="costrow" data-c="fees"><label class="check name"><input type="checkbox" id="c-fees"><span><b>Fees</b><small>bps of notional</small></span></label>
+        <label class="field">bps<input type="number" id="c-fees-bps" min="0" step="0.5"></label></div>
+      <div class="costrow" data-c="spread"><label class="check name"><input type="checkbox" id="c-spread"><span><b>Spread</b><small>half-spread paid per fill</small></span></label>
+        <label class="field">Mode<select id="c-spread-mode"><option value="fixed">fixed bps</option><option value="range">from bar range</option></select></label>
+        <label class="field">Half-spread (bps)<input type="number" id="c-spread-bps" min="0" step="0.5"></label>
+        <label class="field">Range coefficient<input type="number" id="c-spread-coef" min="0" step="0.05"></label></div>
+      <div class="costrow" data-c="temp_impact"><label class="check name"><input type="checkbox" id="c-temp"><span><b>Temporary impact</b><small><code>η · σ · (q / V)<sup>δ</sup></code></small></span></label>
+        <label class="field">η (scale, an assumption)<input type="number" id="c-temp-eta" min="0" step="0.1"></label>
+        <label class="field">δ (0.5 = square root, 1 = linear)<input type="number" id="c-temp-delta" min="0.1" max="2" step="0.1"></label></div>
+      <div class="costrow" data-c="perm_impact"><label class="check name"><input type="checkbox" id="c-perm"><span><b>Permanent impact</b><small>shifts later prices; counterfactual</small></span></label>
+        <label class="field">γ<input type="number" id="c-perm-gamma" min="0" step="0.01"></label></div>
+      <div class="costrow" data-c="participation_cap"><label class="check name"><input type="checkbox" id="c-cap"><span><b>Participation cap</b><small>max share of V per order</small></span></label>
+        <label class="field">Max (% of V)<input type="number" id="c-cap-pct" min="1" max="100" step="1"></label></div>
+      <p class="hint" id="b-costnote" style="margin-top:10px"></p>
+    </section>
+    <section class="card"><div class="row"><h2>6. Run it</h2><span><button class="btn primary" id="b-download">Download run.yaml</button> <button class="btn" id="b-copy">Copy config</button></span></div>
+      <ol class="steps">
+        <li>Get the code once: <pre class="box">git clone https://github.com/HugoWEI/rl-exec-lab
+cd rl-exec-lab
+pip install numpy pandas pyyaml torch</pre></li>
+        <li>Put <code>run.yaml</code> in that folder and run: <pre class="box">python scripts/train.py --config run.yaml</pre></li>
+        <li>When it finishes, come back here, click <b>Open a results file…</b> and choose <code>results.json</code>.</li>
+      </ol>
+      <details open><summary>Config preview</summary><pre class="box" id="b-yaml" style="margin-top:8px"></pre></details>
+    </section>`;
+  const b = $("builder");
+  b.oninput = b.onchange = updateBuilder;
+  $("b-fall").onclick = () => { b.querySelectorAll(".b-feat").forEach(x => x.checked = true); updateBuilder(); };
+  $("b-fnone").onclick = () => { b.querySelectorAll(".b-feat").forEach(x => x.checked = false); updateBuilder(); };
+  b.querySelectorAll("[data-preset]").forEach(btn => btn.onclick = () => {
+    const p = btn.dataset.preset, set = (id, v) => ($(id).checked = v);
+    set("c-fees", p !== "none"); set("c-spread", p !== "none"); set("c-temp", p === "sqrt"); set("c-perm", false); set("c-cap", p === "sqrt");
+    if (p === "sqrt") { $("c-temp-eta").value = 1; $("c-temp-delta").value = 0.5; }
+    updateBuilder();
+  });
+  $("b-download").onclick = () => {
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(new Blob([toYaml(readForm())], { type: "text/yaml" }));
+    a.download = "run.yaml"; a.click(); URL.revokeObjectURL(a.href);
+  };
+  $("b-copy").onclick = async () => {
+    try { await navigator.clipboard.writeText(toYaml(readForm())); $("b-copy").textContent = "Copied"; }
+    catch { $("b-copy").textContent = "Copy failed: select the preview text"; }
+    setTimeout(() => ($("b-copy").textContent = "Copy config"), 1800);
+  };
+  fillForm(S.defaults);
+}
+function fillForm(c) {
+  const d = c.data, k = c.costs, set = (id, v) => ($(id).value = v), chk = (id, v) => ($(id).checked = !!v);
+  set("b-source", d.source); set("b-symbol", d.symbol); set("b-start", d.start); set("b-end", d.end);
+  set("b-syndays", d.synthetic_days); set("b-dip", d.midday_dip_bps);
+  set("b-size", +(100 * c.parent.value).toFixed(4)); set("b-step", c.market.step_minutes); set("b-window", c.market.window);
+  set("b-amode", c.action.mode); set("b-grid", c.action.grid.join(", "));
+  set("b-train", Math.round(100 * c.split.train)); set("b-val", Math.round(100 * c.split.val)); set("b-embargo", c.split.embargo_days);
+  document.querySelectorAll(".b-feat").forEach(x => x.checked = c.market.features.includes(x.value));
+  document.querySelectorAll(".b-meth").forEach(x => x.checked = (c.methods || []).includes(x.value));
+  set("b-seeds", c.seeds); set("b-epochs", c.dqn.epochs);
+  chk("c-fees", k.fees.enabled); set("c-fees-bps", k.fees.bps);
+  chk("c-spread", k.spread.enabled); set("c-spread-mode", k.spread.mode); set("c-spread-bps", k.spread.half_spread_bps); set("c-spread-coef", k.spread.range_coef);
+  chk("c-temp", k.temp_impact.enabled); set("c-temp-eta", k.temp_impact.eta); set("c-temp-delta", k.temp_impact.delta);
+  chk("c-perm", k.perm_impact.enabled); set("c-perm-gamma", k.perm_impact.gamma);
+  chk("c-cap", k.participation_cap.enabled); set("c-cap-pct", Math.round(100 * k.participation_cap.max_pct));
+  updateBuilder();
+}
+function readForm() {
+  const num = id => +$(id).value, on = id => $(id).checked, epochs = num("b-epochs");
+  const data = $("b-source").value === "binance"
+    ? { source: "binance", symbol: $("b-symbol").value.trim().toUpperCase(), start: $("b-start").value, end: $("b-end").value }
+    : { source: "synthetic", synthetic_days: num("b-syndays"), midday_dip_bps: num("b-dip") };
+  return {
+    data,
+    methods: [...document.querySelectorAll(".b-meth:checked")].map(x => x.value),
+    seeds: num("b-seeds"),
+    market: { step_minutes: num("b-step"), window: num("b-window"), features: [...document.querySelectorAll(".b-feat:checked")].map(x => x.value) },
+    parent: { mode: "pct_prev_day_volume", value: +(num("b-size") / 100).toFixed(6) },
+    action: { mode: $("b-amode").value, grid: $("b-grid").value.split(",").map(s => parseFloat(s)).filter(v => !isNaN(v)) },
+    costs: {
+      fees: { enabled: on("c-fees"), bps: num("c-fees-bps") },
+      spread: { enabled: on("c-spread"), mode: $("c-spread-mode").value, half_spread_bps: num("c-spread-bps"), range_coef: num("c-spread-coef") },
+      temp_impact: { enabled: on("c-temp"), eta: num("c-temp-eta"), delta: num("c-temp-delta") },
+      perm_impact: { enabled: on("c-perm"), gamma: num("c-perm-gamma") },
+      participation_cap: { enabled: on("c-cap"), max_pct: +(num("c-cap-pct") / 100).toFixed(4) },
+    },
+    split: { train: +(num("b-train") / 100).toFixed(2), val: +(num("b-val") / 100).toFixed(2), embargo_days: num("b-embargo") },
+    dqn: { epochs }, ppo: { epochs },
+  };
+}
+function toYaml(v, ind = 0) {
+  const pad = "  ".repeat(ind);
+  const scalar = x => typeof x === "string" ? (/^[A-Za-z_][A-Za-z0-9_]*$/.test(x) && !/^(true|false|null|yes|no|on|off)$/i.test(x) ? x : JSON.stringify(x)) : String(x);
+  return Object.entries(v).map(([k, x]) => {
+    if (Array.isArray(x)) return `${pad}${k}: [${x.map(scalar).join(", ")}]`;
+    if (x && typeof x === "object") return `${pad}${k}:\n${toYaml(x, ind + 1)}`;
+    return `${pad}${k}: ${scalar(x)}`;
+  }).join("\n") + (ind ? "" : "\n");
+}
+function updateBuilder() {
+  const c = readForm(), syn = c.data.source === "synthetic";
+  document.querySelectorAll("#builder .bin").forEach(e => e.hidden = syn);
+  document.querySelectorAll("#builder .syn").forEach(e => e.hidden = !syn);
+  for (const [id, key] of [["c-fees", "fees"], ["c-spread", "spread"], ["c-temp", "temp_impact"], ["c-perm", "perm_impact"], ["c-cap", "participation_cap"]])
+    document.querySelector(`.costrow[data-c="${key}"]`).classList.toggle("off", !$(id).checked);
+  const fixed = $("c-spread-mode").value === "fixed";
+  $("c-spread-bps").parentElement.hidden = !fixed; $("c-spread-coef").parentElement.hidden = fixed;
+  const test = Math.round(100 * (1 - c.split.train - c.split.val));
+  $("b-splitnote").textContent = test > 0 ? `Days are split in time order: ${Math.round(100 * c.split.train)}% train, ${Math.round(100 * c.split.val)}% validation, ${test}% test. Results use validation; the test part stays untouched unless you run with --reveal-test.`
+    : "Train and validation shares must leave some days for the test split.";
+  const n = c.methods.length * c.seeds;
+  $("b-count").textContent = n ? `${n} agent${n > 1 ? "s" : ""} to train (${c.methods.length} method${c.methods.length > 1 ? "s" : ""} × ${c.seeds} seed${c.seeds > 1 ? "s" : ""}), ${c.dqn.epochs} epochs each. Time grows with the number of days, agents and epochs.`
+    : "No method selected: use scripts/run_baselines.py to evaluate the baselines only.";
+  const k = c.costs, any = k.fees.enabled || k.spread.enabled || k.temp_impact.enabled || k.perm_impact.enabled;
+  const ex = (k.fees.enabled ? k.fees.bps : 0) + (k.spread.enabled && k.spread.mode === "fixed" ? k.spread.half_spread_bps : 0) + (k.temp_impact.enabled ? k.temp_impact.eta * 5 * Math.pow(0.05, k.temp_impact.delta) : 0);
+  $("b-costnote").textContent = any ? `Worked example: with σ = 5 bps and an order of 5% of V, one fill costs about ${ex.toFixed(2)} bps${k.spread.enabled && k.spread.mode === "range" ? " plus the range-based spread" : ""}.`
+    : "All costs are off: the run measures pure price timing. Perfect foresight will simply buy at the day's low.";
+  $("b-yaml").textContent = toYaml(c);
+}
+
+// ---------- tabs, loading ---------------------------------------------------------------------
+function showTab(name) {
+  const isNew = name === "new";
+  $("results").hidden = isNew; $("builder").hidden = !isNew;
+  $("tab-results").setAttribute("aria-selected", !isNew); $("tab-new").setAttribute("aria-selected", isNew);
+  history.replaceState(null, "", location.pathname + location.search + (isNew ? "#new" : ""));
+  scrollTo(0, 0);
+}
+$("tab-results").onclick = () => showTab("results");
+$("tab-new").onclick = () => showTab("new");
+function fail(msg) {
+  $("subtitle").textContent = "No results loaded";
+  $("results").innerHTML = `<div class="note">${esc(msg)}</div>`;
+}
+$("load").onclick = () => $("file").click();
+$("file").onchange = async e => {
   const f = e.target.files[0]; if (!f) return;
-  try { render(JSON.parse(await f.text())); } catch (err) { fail("Could not read that file: " + err.message); }
+  try { render(JSON.parse(await f.text())); showTab("results"); } catch (err) { fail("Could not read that file: " + err.message); }
+  e.target.value = "";
 };
 const src = new URLSearchParams(location.search).get("data") || "data/demo.json";
-fetch(src).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); }).then(render)
-  .catch(() => fail("Could not load " + src + ". Use “Open a results file…” to view a local results JSON."));
+const getJson = u => fetch(u).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); });
+getJson("data/schema.json").then(s => { SCHEMA = s; buildBuilder(); })
+  .catch(() => ($("builder").innerHTML = `<div class="note">Could not load the run builder's settings (data/schema.json).</div>`))
+  .finally(() => { if (location.hash === "#new") showTab("new"); });
+getJson(src).then(render).catch(() => fail("Could not load " + src + ". Use “Open a results file…” to view a local results JSON."));
 </script>
 </body>
 </html>

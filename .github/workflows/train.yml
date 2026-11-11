@@ -1,14 +1,15 @@
 name: train
 
-# Downloads Binance 1-minute bars, trains DDQN agents on CPU, compares them with the baselines
+# Downloads Binance 1-minute bars, trains the RL agents on CPU, compares them with the baselines
 # on the validation split and publishes the results to the viewer (docs/data/demo.json).
 on:
   workflow_dispatch:
     inputs:
       symbol: {description: "Binance spot symbol", default: "BTCUSDT"}
-      start: {description: "First month (YYYY-MM)", default: "2020-01"}
+      start: {description: "First month (YYYY-MM)", default: "2023-01"}
       end: {description: "Last month (YYYY-MM)", default: "2024-12"}
-      seeds: {description: "Number of agents to train", default: "5"}
+      methods: {description: "RL methods, comma-separated", default: "dqn,ddqn,dueling_ddqn,ppo"}
+      seeds: {description: "Agents trained per method", default: "3"}
       features: {description: "State features: comma-separated list, or 'all'", default: "all"}
   push:
     branches: [main]
@@ -20,12 +21,13 @@ permissions:
 jobs:
   run:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 240
     env:
       SYMBOL: ${{ inputs.symbol || 'BTCUSDT' }}
-      START: ${{ inputs.start || '2020-01' }}
+      START: ${{ inputs.start || '2023-01' }}
       END: ${{ inputs.end || '2024-12' }}
-      SEEDS: ${{ inputs.seeds || '5' }}
+      METHODS: ${{ inputs.methods || 'dqn,ddqn,dueling_ddqn,ppo' }}
+      SEEDS: ${{ inputs.seeds || '3' }}
       FEATURES: ${{ inputs.features || 'all' }}
     steps:
       - uses: actions/checkout@v4
@@ -35,18 +37,18 @@ jobs:
       - run: pip install numpy pandas pyyaml pytest
       - run: pip install torch --index-url https://download.pytorch.org/whl/cpu
       - run: python -m pytest -q tests
-      - run: python scripts/download_binance.py --symbol "$SYMBOL" --start "$START" --end "$END"
       - name: Train and evaluate (validation split)
         run: |
           mkdir -p results
-          python -u scripts/train_ddqn.py --data "data/${SYMBOL}-1m-*.zip" --seeds "$SEEDS" --features "$FEATURES" \
-            --export docs/data/demo.json \
-            --label "${SYMBOL} spot, 1-minute bars from Binance, ${START} to ${END}" | tee results/ddqn.txt
+          python -u scripts/train.py --symbol "$SYMBOL" --start "$START" --end "$END" \
+            --methods "$METHODS" --seeds "$SEEDS" --features "$FEATURES" \
+            --export docs/data/demo.json | tee results/train.txt
       - name: Publish results
         run: |
+          python scripts/export_schema.py
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add docs/data/demo.json results/ddqn.txt
-          git commit -m "Update DDQN results (${SYMBOL} ${START} to ${END}, ${SEEDS} seeds)" || echo "no changes"
+          git add docs/data/demo.json docs/data/schema.json results/train.txt
+          git commit -m "Update results (${SYMBOL} ${START} to ${END}: ${METHODS}, ${SEEDS} seeds)" || echo "no changes"
           git pull --rebase origin main
           git push

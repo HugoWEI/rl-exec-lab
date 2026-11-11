@@ -1,3 +1,15 @@
+data:
+  source: binance              # binance or synthetic
+  symbol: BTCUSDT
+  start: "2023-01"             # first month
+  end: "2024-12"               # last month
+  dir: data                    # where downloaded files are kept
+  synthetic_days: 120          # synthetic only
+  midday_dip_bps: 0            # synthetic only: plant a learnable average midday dip
+
+methods: [dqn, ddqn, dueling_ddqn, ppo]   # RL agents to train
+seeds: 3                                  # independently trained agents per method
+
 market:
   step_minutes: 5        # decision interval; 288 steps per day
   window: 60             # steps used for rolling sigma, volume and range
@@ -23,9 +35,8 @@ split:
   val: 0.2
   embargo_days: 1
 
-ddqn:
+dqn:                           # shared by dqn, ddqn and dueling_ddqn
   hidden: [64, 64]
-  dueling: true
   lr: 0.0003
   gamma: 1.0
   batch_size: 256
@@ -37,4 +48,18 @@ ddqn:
   eps_decay_frac: 0.6          # share of training over which exploration decays
   tau: 0.005                   # soft target-network update
   warmup_steps: 5000
+  reward_scale: 0.1
+
+ppo:
+  hidden: [64, 64]
+  lr: 0.0003
+  gamma: 1.0
+  gae_lambda: 0.95
+  clip: 0.2
+  entropy_coef: 0.01
+  value_coef: 0.5
+  update_epochs: 4
+  minibatch: 512
+  epochs: 12
+  parallel_envs: 16
   reward_scale: 0.1

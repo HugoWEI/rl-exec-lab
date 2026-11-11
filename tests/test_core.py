@@ -136,3 +136,32 @@ def test_twap_multiple_of_one_is_twap():
         _, _, done, _ = env.step(env.action_frac(2))  # grid[2] == 1.0
     np.testing.assert_allclose(env.result().fills, env.Q / day.n)
     assert env.result().is_bps == pytest.approx(run_episode(env, day, TWAP()).is_bps)
+
+
+def test_agents_train_and_export(tmp_path):
+    pytest.importorskip("torch")
+    import json
+    import subprocess
+    import sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    out = tmp_path / "r.json"
+    subprocess.run([sys.executable, str(root / "scripts/train.py"), "--synthetic", "--synthetic-days", "14",
+                    "--methods", "dqn,ddqn,dueling_ddqn,ppo", "--seeds", "2", "--epochs", "1",
+                    "--export", str(out)], check=True, capture_output=True)
+    d = json.loads(out.read_text())
+    names = {r["policy"] for r in d["summary"]}
+    assert {"dqn", "ddqn", "dueling_ddqn", "ppo", "twap", "perfect_foresight"} <= names
+    assert len(d["training"]["runs"]) == 8
+    assert all(len(v) == 288 for v in d["samples"][0]["bought_pct"].values())
+
+
+def test_schema_file_matches_code():
+    pytest.importorskip("torch")
+    import json
+    import sys
+    from pathlib import Path
+    root = Path(__file__).resolve().parents[1]
+    sys.path.insert(0, str(root / "scripts"))
+    from export_schema import schema
+    assert json.loads((root / "docs/data/schema.json").read_text()) == json.loads(json.dumps(schema()))
