@@ -20,7 +20,8 @@ def load_binance_klines(paths) -> pd.DataFrame:
         df = df[pd.to_numeric(df["open_time"], errors="coerce").notna()]  # drop header row if present
         ts = df["open_time"].astype("int64").to_numpy()
         ts = np.where(ts > 10**14, ts // 1000, ts)  # some dumps are in microseconds, others milliseconds
-        out = df[["open", "high", "low", "close", "volume"]].astype(float)
+        out = df[["open", "high", "low", "close", "volume", "taker_base"]].astype(float)
+        out = out.rename(columns={"taker_base": "taker_buy"})  # volume bought by aggressive (taker) buyers
         out.index = pd.to_datetime(ts, unit="ms", utc=True)
         frames.append(out)
     bars = pd.concat(frames).sort_index()
@@ -45,8 +46,10 @@ def synthetic_bars(n_days: int = 120, seed: int = 0, s0: float = 30_000.0, daily
     high = np.maximum(open_, close) * (1 + np.abs(rng.standard_normal(n)) * sig / 2)
     low = np.minimum(open_, close) * (1 - np.abs(rng.standard_normal(n)) * sig / 2)
     volume = 10.0 * shape**2 * rng.lognormal(0.0, 0.5, n)
+    taker_buy = volume * np.clip(0.5 + 0.1 * rng.standard_normal(n), 0.05, 0.95)  # uninformative order flow
     idx = pd.date_range(start, periods=n, freq="1min", tz="UTC")
-    return pd.DataFrame({"open": open_, "high": high, "low": low, "close": close, "volume": volume}, index=idx)
+    return pd.DataFrame({"open": open_, "high": high, "low": low, "close": close, "volume": volume,
+                         "taker_buy": taker_buy}, index=idx)
 
 
 # ---- feature registry ------------------------------------------------------------------------
@@ -54,6 +57,37 @@ def synthetic_bars(n_days: int = 120, seed: int = 0, s0: float = 30_000.0, daily
 # the agent trades at). The UI will list these names and descriptions.
 def _ret(k):
     return lambda g: np.log(g["open"] / g["open"].shift(k))
+
+
+def _day(g):
+    return g.index.normalize()
+
+
+def _flow(k):
+    """Taker buy/sell imbalance over the last k steps, in [-1, 1] (needs the taker_buy column)."""
+    def f(g):
+        buy, vol = g["taker_buy"].shift(1).rolling(k).sum(), g["volume"].shift(1).rolling(k).sum()
+        return ((2 * buy - vol) / vol).where(vol > 0, 0.0)
+    return f
+
+
+def _range_pos(g):
+    """Where the current price sits between the day's low (0) and high (1) so far."""
+    hi = g.groupby(_day(g))["high"].transform(lambda x: x.shift(1).cummax())
+    lo = g.groupby(_day(g))["low"].transform(lambda x: x.shift(1).cummin())
+    return ((g["open"] - lo) / (hi - lo)).clip(-0.5, 1.5).fillna(0.5)
+
+
+def _vwap_dev(g):
+    """log(current price / the day's volume-weighted average price so far)."""
+    pv = (g["close"] * g["volume"]).groupby(_day(g)).transform(lambda x: x.shift(1).cumsum())
+    v = g.groupby(_day(g))["volume"].transform(lambda x: x.shift(1).cumsum())
+    return np.log(g["open"] / (pv / v)).where(v > 0, 0.0).fillna(0.0)
+
+
+def _vol_ratio(g):
+    short = np.log(g["open"] / g["open"].shift(1)).rolling(12).std()
+    return (short / g["sigma"]).where(g["sigma"] > 0, 1.0)
 
 
 FEATURES: dict[str, tuple[str, callable]] = {
@@ -66,6 +100,11 @@ FEATURES: dict[str, tuple[str, callable]] = {
     "range": ("rolling mean (high-low)/close", lambda g: g["range"]),
     "price_vs_arrival": ("log(current price / day's arrival price)",
                          lambda g: np.log(g["open"] / g.groupby(g.index.normalize())["open"].transform("first"))),
+    "flow_1": ("taker buy/sell imbalance over the last step", _flow(1)),
+    "flow_12": ("taker buy/sell imbalance over the last 12 steps", _flow(12)),
+    "vol_ratio": ("short-term volatility (12 steps) / rolling volatility", _vol_ratio),
+    "range_pos": ("position of the price within the day's range so far (0 = low, 1 = high)", _range_pos),
+    "vwap_dev": ("log(current price / day's VWAP so far)", _vwap_dev),
     "tod_sin": ("time of day, sine", lambda g: np.sin(2 * np.pi * (g.index.hour * 60 + g.index.minute) / 1440)),
     "tod_cos": ("time of day, cosine", lambda g: np.cos(2 * np.pi * (g.index.hour * 60 + g.index.minute) / 1440)),
 }
@@ -104,8 +143,12 @@ class Market:
         if unknown:
             raise ValueError(f"unknown features: {sorted(unknown)}")
 
-        g = bars.resample(f"{step_minutes}min").agg(
-            {"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"})
+        agg = {"open": "first", "high": "max", "low": "min", "close": "last", "volume": "sum"}
+        if "taker_buy" in bars.columns:
+            agg["taker_buy"] = "sum"
+        elif any(f.startswith("flow_") for f in self.feature_names):
+            raise ValueError("flow features need a taker_buy column in the bars")
+        g = bars.resample(f"{step_minutes}min").agg(agg)
         g["sigma"] = np.log(g["open"] / g["open"].shift(1)).rolling(window).std()
         g["vbar"] = g["volume"].shift(1).rolling(window).mean()
         g["range"] = ((g["high"] - g["low"]) / g["close"]).shift(1).rolling(window).mean()

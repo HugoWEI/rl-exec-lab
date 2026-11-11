@@ -8,7 +8,7 @@ import sys
 
 import pandas as pd
 
-from _common import base_parser, load_bars
+from _common import base_parser, config_from_args, load_bars
 from rlexec import (BuyAtEnd, BuyAtStart, PerfectForesight, RandomPolicy, TWAP, build, evaluate, load_config,
                     summarize)
 from rlexec.export import export_json
@@ -18,7 +18,7 @@ def main():
     ap = base_parser(__doc__)
     ap.add_argument("--out", help="write per-day results to this csv")
     args = ap.parse_args()
-    cfg = load_config(args.config)
+    cfg = config_from_args(args)
     bars, label, note = load_bars(args)
     market, costs, env, splits = build(cfg, bars)
     name = "test" if args.reveal_test else "val"

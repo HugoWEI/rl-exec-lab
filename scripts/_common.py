@@ -4,7 +4,7 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
-from rlexec import load_binance_klines, synthetic_bars  # noqa: E402
+from rlexec import FEATURES, load_binance_klines, load_config, synthetic_bars  # noqa: E402
 
 
 def base_parser(doc):
@@ -15,10 +15,20 @@ def base_parser(doc):
     ap.add_argument("--synthetic-days", type=int, default=120)
     ap.add_argument("--midday-dip-bps", type=float, default=0.0,
                     help="synthetic only: add a learnable average midday price dip of this size")
+    ap.add_argument("--features", default=None,
+                    help="comma-separated state features overriding the config, or 'all'. Available: "
+                         + ", ".join(FEATURES))
     ap.add_argument("--reveal-test", action="store_true", help="report the test split instead of validation")
     ap.add_argument("--export", help="write a results JSON for the web viewer (docs/index.html)")
     ap.add_argument("--label", default=None, help="dataset label shown in the viewer")
     return ap
+
+
+def config_from_args(args) -> dict:
+    cfg = load_config(args.config)
+    if args.features:
+        cfg["market"]["features"] = list(FEATURES) if args.features == "all" else args.features.split(",")
+    return cfg
 
 
 def load_bars(args):

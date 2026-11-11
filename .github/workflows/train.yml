@@ -9,6 +9,7 @@ on:
       start: {description: "First month (YYYY-MM)", default: "2023-01"}
       end: {description: "Last month (YYYY-MM)", default: "2024-12"}
       seeds: {description: "Number of agents to train", default: "5"}
+      features: {description: "State features: comma-separated list, or 'all'", default: "all"}
   push:
     branches: [main]
     paths: [".github/workflows/train.yml"]
@@ -25,6 +26,7 @@ jobs:
       START: ${{ inputs.start || '2023-01' }}
       END: ${{ inputs.end || '2024-12' }}
       SEEDS: ${{ inputs.seeds || '5' }}
+      FEATURES: ${{ inputs.features || 'all' }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -37,7 +39,7 @@ jobs:
       - name: Train and evaluate (validation split)
         run: |
           mkdir -p results
-          python -u scripts/train_ddqn.py --data "data/${SYMBOL}-1m-*.zip" --seeds "$SEEDS" \
+          python -u scripts/train_ddqn.py --data "data/${SYMBOL}-1m-*.zip" --seeds "$SEEDS" --features "$FEATURES" \
             --export docs/data/demo.json \
             --label "${SYMBOL} spot, 1-minute bars from Binance, ${START} to ${END}" | tee results/ddqn.txt
       - name: Publish results

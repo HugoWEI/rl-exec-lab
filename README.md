@@ -43,6 +43,9 @@ To change the demo shown by default, export to `docs/data/demo.json` and push.
   rate (1 = TWAP). Training uses a reward measured relative to TWAP's inventory path, which has the
   same optimum as the shortfall but much less noise. Several seeds are trained; the "ddqn" row is
   the day-by-day average over seeds, and the per-seed spread is reported.
+- **State features** (`rlexec/data.py`, `FEATURES`): returns over several horizons, volatility,
+  relative volume, taker buy/sell imbalance, position in the day's range, deviation from the day's
+  VWAP, time of day. Pick them in the config or with `--features a,b,c` (or `--features all`).
 - **Bias controls**: features use past bars only (tested), chronological train/val/test split with
   an embargo, validation reported by default, test only with `--reveal-test`. The DDQN's best epoch is picked
   on validation, so its validation figure is optimistic; test is the unbiased check.

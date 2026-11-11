@@ -76,17 +76,23 @@ def test_permanent_impact_charges_and_is_nearly_schedule_independent():
 
 
 def test_features_are_causal():
+    from rlexec import FEATURES
+    every = list(FEATURES)
+    m1 = Market(BARS, step_minutes=5, window=60, features=every)
     bars2 = BARS.copy()
     cut = BARS.index[1440 * 6 + 700]  # perturb everything from mid-day 7 onwards
     bars2.loc[bars2.index >= cut, ["open", "high", "low", "close"]] *= 1.05
     bars2.loc[bars2.index >= cut, "volume"] *= 3.0
-    m2 = Market(bars2, step_minutes=5, window=60)
+    bars2.loc[bars2.index >= cut, "taker_buy"] *= 0.5
+    m2 = Market(bars2, step_minutes=5, window=60, features=every)
     k = 700 // 5  # steps strictly before the perturbed bar
-    d1, d2 = MARKET.days[5], m2.days[5]
+    d1, d2 = m1.days[5], m2.days[5]
+    assert d1.features.shape[1] == len(every)
+    assert not np.allclose(d1.features[k + 1:], d2.features[k + 1:])  # the perturbation does reach later steps
     assert d1.date == d2.date
     for a, b in [(d1.features, d2.features), (d1.sigma, d2.sigma), (d1.vbar, d2.vbar), (d1.range_, d2.range_)]:
         np.testing.assert_allclose(a[:k], b[:k])
-    for e1, e2 in zip(MARKET.days[:5], m2.days[:5]):
+    for e1, e2 in zip(m1.days[:5], m2.days[:5]):
         np.testing.assert_allclose(e1.features, e2.features)
 
 

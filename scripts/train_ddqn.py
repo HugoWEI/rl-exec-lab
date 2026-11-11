@@ -13,7 +13,7 @@ import numpy as np
 import pandas as pd
 import torch
 
-from _common import base_parser, load_bars
+from _common import base_parser, config_from_args, load_bars
 from rlexec import (BuyAtEnd, BuyAtStart, PerfectForesight, RandomPolicy, TWAP, build, evaluate, load_config,
                     summarize)
 from rlexec.ddqn import DDQNConfig, train_ddqn
@@ -27,7 +27,7 @@ def main():
     ap.add_argument("--device", default=None, help="cpu or cuda (default: auto)")
     ap.add_argument("--save-dir", default=None, help="save each seed's network here")
     args = ap.parse_args()
-    cfg = load_config(args.config)
+    cfg = config_from_args(args)
     if args.epochs:
         cfg["ddqn"]["epochs"] = args.epochs
     dcfg = DDQNConfig(**cfg["ddqn"])
