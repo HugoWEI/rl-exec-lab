@@ -77,6 +77,13 @@ def main():
     for run in runs:
         run[f"{name}_vs_twap"] = round(float(seed_means[f"{run['method']}__s{run['seed']}"]), 4)
 
+    # overfitting check: the same selected agents, scored on all the days they were trained on
+    if agents:
+        tr = evaluate(env, splits["train"], [TWAP()] + list(agents.values()))
+        tr_means = tr.groupby("policy")["is_bps"].mean()
+        for run in runs:
+            run["train_vs_twap"] = round(float(tr_means[f"{run['method']}__s{run['seed']}"] - tr_means["twap"]), 4)
+
     # one row per method = average over its seeds, day by day: what to expect from one training run
     per_seed["method"] = per_seed["policy"].str.split("__s").str[0]
     shown = []
@@ -98,6 +105,13 @@ def main():
         final = np.array([r["final_val_vs_twap"] for r in rs])
         print(f"  {METHODS[method]['label']:<20} " + ", ".join(f"{x:+.2f}" for x in v) +
               f"   | final epoch: mean {final.mean():+.2f}")
+    if agents:
+        print(f"\nOverfitting check, mean of seeds, bps vs TWAP (a large gap = the agents memorised training days):")
+        print(f"  {'':<20} {'training days':>14} {name + ' days':>14} {'gap':>8}")
+        for method in cfg["methods"]:
+            rs = [r for r in runs if r["method"] == method]
+            a, b = np.mean([r["train_vs_twap"] for r in rs]), np.mean([r[f"{name}_vs_twap"] for r in rs])
+            print(f"  {METHODS[method]['label']:<20} {a:>+14.2f} {b:>+14.2f} {b - a:>+8.2f}")
     if name == "val" and cfg["methods"]:
         print("Note: validation was used to pick each agent's best epoch, so the agents' validation figures are "
               "optimistic. The test split (--reveal-test) is the unbiased check; use it once, at the end.")

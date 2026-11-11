@@ -51,7 +51,8 @@ the page's default view.
   Each method is trained over several seeds; its row is the day-by-day average over seeds.
 - **Bias controls**: features use past bars only (tested); chronological train/validation/test
   split with an embargo; validation reported by default and test only with `--reveal-test`;
-  several seeds per method; the final-epoch result is shown next to the best-epoch result, because
+  several seeds per method; an overfitting check that scores every agent on its training days
+  next to the held-out days, per epoch and at the end; the final-epoch result is shown next to the best-epoch result, because
   picking the best epoch on validation makes that figure optimistic.
 
 ## Layout

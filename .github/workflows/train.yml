@@ -1,7 +1,7 @@
 name: train
 
 # Downloads Binance 1-minute bars, trains the RL agents on CPU, compares them with the baselines
-# on the validation split and publishes the results to the viewer (docs/data/demo.json).
+# on the validation split (with an overfitting check against training days) and publishes the results to the viewer (docs/data/demo.json).
 on:
   workflow_dispatch:
     inputs:

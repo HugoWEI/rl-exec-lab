@@ -134,22 +134,29 @@ class NetPolicy(Policy):
 class _Tracker:
     """Scores the greedy policy on validation after each epoch and keeps the best network."""
 
-    def __init__(self, env, val_days, policy, method, seed, epochs, log):
+    def __init__(self, env, train_days, val_days, policy, method, seed, epochs, log):
         self.env, self.val_days, self.policy = env, val_days, policy
         self.method, self.seed, self.epochs, self.log = method, seed, epochs, log
         self.twap = np.array([run_episode(env, d, TWAP()).is_bps for d in val_days])
+        # a fixed sample of training days (same for every seed and method), scored each epoch to
+        # compare with validation: a growing gap between the two is overfitting
+        pick = np.random.default_rng(0).choice(len(train_days), min(len(val_days), len(train_days)), replace=False)
+        self.train_sample = [train_days[i] for i in sorted(pick)]
+        self.twap_train = np.array([run_episode(env, d, TWAP()).is_bps for d in self.train_sample])
         self.best = {"score": np.inf, "state": copy.deepcopy(policy.net.state_dict()), "epoch": 0}
         self.history, self.t0 = [], time.time()
 
     def end_epoch(self, epoch: int, extra: str = ""):
         self.policy.net.eval()
         agent = np.array([run_episode(self.env, d, self.policy).is_bps for d in self.val_days])
+        on_train = np.array([run_episode(self.env, d, self.policy).is_bps for d in self.train_sample])
         self.policy.net.train()
-        score = float((agent - self.twap).mean())
-        self.history.append({"epoch": epoch, "val_vs_twap": round(score, 4)})
+        score, train_score = float((agent - self.twap).mean()), float((on_train - self.twap_train).mean())
+        self.history.append({"epoch": epoch, "val_vs_twap": round(score, 4), "train_vs_twap": round(train_score, 4)})
         if score < self.best["score"]:
             self.best = {"score": score, "state": copy.deepcopy(self.policy.net.state_dict()), "epoch": epoch}
-        self.log(f"  {self.method:<13} seed {self.seed} epoch {epoch:>2}/{self.epochs}  val vs TWAP {score:+8.2f} bps  "
+        self.log(f"  {self.method:<13} seed {self.seed} epoch {epoch:>2}/{self.epochs}  train {train_score:+8.2f}  "
+                 f"val vs TWAP {score:+8.2f} bps  "
                  f"(best {self.best['score']:+.2f} @ {self.best['epoch']}) {extra} {time.time() - self.t0:5.0f}s")
 
     def finish(self):
@@ -192,7 +199,8 @@ def train_dqn(method, env, train_days, val_days, cfg: DQNConfig, seed=0, device=
     ptr = size = step = 0
     total_steps = cfg.epochs * int(np.ceil(len(train_days) / B)) * n
     decay_steps = max(1, int(cfg.eps_decay_frac * total_steps))
-    track = _Tracker(env, val_days, NetPolicy(net, norm, device, method, spec["label"]), method, seed, cfg.epochs, log)
+    track = _Tracker(env, train_days, val_days, NetPolicy(net, norm, device, method, spec["label"]),
+                     method, seed, cfg.epochs, log)
 
     for epoch in range(1, cfg.epochs + 1):
         for idx in _batches(rng, len(train_days), B):
@@ -239,7 +247,7 @@ def train_ppo(method, env, train_days, val_days, cfg: PPOConfig, seed=0, device=
     B, n, nA, obs_dim = cfg.parallel_envs, train_days[0].n, env.n_actions, len(env.obs_names)
     net = ActorCritic(obs_dim, nA, cfg.hidden).to(device)
     opt = torch.optim.Adam(net.parameters(), lr=cfg.lr)
-    track = _Tracker(env, val_days, NetPolicy(net, norm, device, method, METHODS[method]["label"]),
+    track = _Tracker(env, train_days, val_days, NetPolicy(net, norm, device, method, METHODS[method]["label"]),
                      method, seed, cfg.epochs, log)
 
     for epoch in range(1, cfg.epochs + 1):

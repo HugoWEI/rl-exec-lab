@@ -206,9 +206,14 @@ function render(data) {
       <p class="hint">Each filled dot is one independently trained agent: its mean difference vs TWAP in bps on this split. The open ring is the method's average at the final training epoch on validation, which involves no picking of the best epoch. A wide spread, or a ring far from the dots, means the result is fragile.</p>
       <div id="c-seeds"></div>
     </section>
+    ${tr.runs.some(r => r.train_vs_twap != null) ? `<section class="card">
+      <h2>Overfitting check</h2>
+      <p class="hint">The same trained agents scored on the days they were trained on (open diamond) and on this split's days (filled dot), as mean difference vs TWAP in bps, averaged over seeds. If the diamond sits far to the left of the dot, the agents memorised their training days instead of learning something that carries over.</p>
+      <div id="c-overfit"></div>
+    </section>` : ""}
     <section class="card">
       <h2>Learning curves</h2>
-      <p class="hint">Validation difference vs TWAP (bps) after each training epoch, averaged over seeds. Below zero is better than TWAP.</p>
+      <p class="hint">Difference vs TWAP (bps) after each training epoch, averaged over seeds: solid lines on validation days, dashed lines on a sample of training days. Below zero is better than TWAP; dashed lines falling while solid lines stay flat is overfitting.</p>
       <div class="legend" id="l-curves"></div><div id="c-curves"></div>
     </section>` : ""}
     <section class="card">
@@ -224,7 +229,7 @@ function render(data) {
 
   $("edit").onclick = () => { if (!SCHEMA) return; fillForm(mergeCfg(SCHEMA.defaults, cfg)); showTab("new"); };
   drawDiff(rows.filter(r => r.policy !== "twap"));
-  if (tr) { drawSeeds(tr); drawCurves(tr); }
+  if (tr) { drawSeeds(tr); drawCurves(tr); if (tr.runs.some(r => r.train_vs_twap != null)) drawOverfit(tr); }
   drawCosts(rows, c);
   const names = data.policies.map(p => p.name), rl = names.filter(n => (kind[n] || {}).kind === "rl");
   const visible = new Set(rl.length ? ["twap", "perfect_foresight", ...rl] : names);
@@ -285,11 +290,28 @@ function drawSeeds(tr) {
   });
 }
 
+function drawOverfit(tr) {
+  const key = tr.split + "_vs_twap", name = tr.split === "val" ? "Validation" : "Test";
+  const ms = methodsOf(tr).map(m => ({ name: m.name, train: mean(runsOf(tr, m.name).map(r => r.train_vs_twap)), held: mean(runsOf(tr, m.name).map(r => r[key])) }));
+  const all = ms.flatMap(m => [m.train, m.held]);
+  rowChart("c-overfit", ms, "Training versus held-out difference to TWAP by method", Math.min(0, ...all), Math.max(0, ...all), (svg, m, x, y, W, rowH) => {
+    svgEl("line", { x1: x(m.train), x2: x(m.held), y1: y, y2: y, stroke: color(m.name), "stroke-width": 2, opacity: .45 }, svg);
+    svgEl("rect", { x: x(m.train) - 5, y: y - 5, width: 10, height: 10, transform: `rotate(45 ${x(m.train)} ${y})`, fill: "var(--surface-1)", stroke: color(m.name), "stroke-width": 2 }, svg);
+    svgEl("circle", { cx: x(m.held), cy: y, r: 5, fill: color(m.name), stroke: "var(--surface-1)", "stroke-width": 2 }, svg);
+    svgEl("text", { x: Math.max(x(m.train), x(m.held)) + 12, y: y + 4, text: `gap ${sgn(m.held - m.train)}` }, svg);
+    const hit = svgEl("rect", { x: 0, y: y - rowH / 2, width: W, height: rowH, fill: "transparent" }, svg);
+    hit.onmousemove = e => showTip(e, `<div class="t">${esc(label(m.name))}, mean of seeds</div><div class="r"><span>Training days</span><b>${sgn(m.train)} bps</b></div><div class="r"><span>${name} days</span><b>${sgn(m.held)} bps</b></div><div class="r"><span>Gap</span><span>${sgn(m.held - m.train)} bps</span></div>`);
+    hit.onmouseleave = hideTip;
+  });
+}
+
 function drawCurves(tr) {
   const ms = methodsOf(tr), E = Math.max(...tr.runs.map(r => r.epochs.length));
-  const curves = ms.map(m => ({ name: m.name, ys: Array.from({ length: E }, (_, i) => mean(runsOf(tr, m.name).filter(r => r.epochs[i]).map(r => r.epochs[i].val_vs_twap))) }));
-  $("l-curves").innerHTML = ms.map(m => `<span>${sw(m.name)}${esc(label(m.name))}</span>`).join("");
-  const W = 960, L = 56, R = 16, H = 250, B = 30, all = curves.flatMap(c => c.ys);
+  const avg = (m, k) => Array.from({ length: E }, (_, i) => mean(runsOf(tr, m.name).filter(r => r.epochs[i]).map(r => r.epochs[i][k])));
+  const hasTrain = tr.runs.every(r => r.epochs.every(e => e.train_vs_twap != null));
+  const curves = ms.map(m => ({ name: m.name, ys: avg(m, "val_vs_twap"), ts: hasTrain ? avg(m, "train_vs_twap") : null }));
+  $("l-curves").innerHTML = ms.map(m => `<span>${sw(m.name)}${esc(label(m.name))}</span>`).join("") + (hasTrain ? `<span>solid = validation · dashed = training sample</span>` : "");
+  const W = 960, L = 56, R = 16, H = 250, B = 30, all = curves.flatMap(c => [...c.ys, ...(c.ts || [])]);
   const lo0 = Math.min(0, ...all), hi0 = Math.max(0, ...all), pad = (hi0 - lo0) * 0.08 || 1, lo = lo0 - pad, hi = hi0 + pad;
   const x = i => L + (E > 1 ? i / (E - 1) : 0.5) * (W - L - R), y = v => 8 + (hi - v) / (hi - lo) * (H - 8 - B);
   const svg = svgEl("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Validation difference versus TWAP by training epoch" });
@@ -301,6 +323,7 @@ function drawCurves(tr) {
   for (const c of curves) {
     svgEl("path", { d: c.ys.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(""), fill: "none", stroke: color(c.name), "stroke-width": 2, "stroke-linejoin": "round" }, svg);
     c.ys.forEach((v, i) => svgEl("circle", { cx: x(i), cy: y(v), r: 3, fill: color(c.name) }, svg));
+    if (c.ts) svgEl("path", { d: c.ts.map((v, i) => (i ? "L" : "M") + x(i).toFixed(1) + " " + y(v).toFixed(1)).join(""), fill: "none", stroke: color(c.name), "stroke-width": 1.5, "stroke-dasharray": "5 4", opacity: .8 }, svg);
   }
   const cross = svgEl("line", { y1: 8, y2: H - B, stroke: "var(--text-muted)", "stroke-dasharray": "3 3", visibility: "hidden" }, svg);
   const hit = svgEl("rect", { x: L - 10, y: 0, width: W - L - R + 20, height: H - B, fill: "transparent" }, svg);
@@ -308,7 +331,7 @@ function drawCurves(tr) {
     const box = svg.getBoundingClientRect(), px = (e.clientX - box.left) / box.width * W;
     const i = E > 1 ? Math.max(0, Math.min(E - 1, Math.round((px - L) / (W - L - R) * (E - 1)))) : 0;
     cross.setAttribute("x1", x(i)); cross.setAttribute("x2", x(i)); cross.setAttribute("visibility", "visible");
-    showTip(e, `<div class="t">Epoch ${i + 1}</div>` + curves.map(c => `<div class="r"><span>${sw(c.name)}${esc(label(c.name))}</span><span>${sgn(c.ys[i])} bps</span></div>`).join(""));
+    showTip(e, `<div class="t">Epoch ${i + 1}</div>` + curves.map(c => `<div class="r"><span>${sw(c.name)}${esc(label(c.name))}</span><span>${c.ts ? "train " + sgn(c.ts[i]) + " · val " : ""}${sgn(c.ys[i])} bps</span></div>`).join(""));
   };
   hit.onmouseleave = () => { hideTip(); cross.setAttribute("visibility", "hidden"); };
   $("c-curves").replaceChildren(svg);
